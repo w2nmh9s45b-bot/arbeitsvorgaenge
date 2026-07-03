@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b5cad">
+<meta name="apple-mobile-web-app-title" content="Arbeitsvorgänge">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Arbeitsvorgänge – SB Organisation (1.1.2)</title>
+<style>
+:root{
+  --bg:#f2f4f8; --card:#ffffff; --ink:#1a2330; --mut:#5b6b7d; --line:#e2e8f0;
+  --acc:#0b5cad; --acc2:#e8f1fb; --ok:#1e8e3e; --ok2:#e6f4ea; --warn:#b3560c; --warn2:#fdf0e3;
+  --danger:#c0392b; --shadow:0 1px 3px rgba(16,34,60,.08),0 4px 14px rgba(16,34,60,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#10151c; --card:#1a212b; --ink:#e8edf4; --mut:#94a3b6; --line:#2a3442;
+    --acc:#5aa2e8; --acc2:#182c42; --ok:#5bc078; --ok2:#15301d; --warn:#e8a75a; --warn2:#33240f; --danger:#e07060;
+    --shadow:0 1px 3px rgba(0,0,0,.4); }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px; line-height:1.45; -webkit-text-size-adjust:100%}
+#app{max-width:640px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+/* Header */
+header{position:sticky;top:0;z-index:20;background:var(--acc);color:#fff;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px 12px;box-shadow:var(--shadow)}
+.hrow{display:flex;align-items:center;gap:8px}
+.hbtn{background:rgba(255,255,255,.16);border:none;color:#fff;border-radius:10px;
+  min-width:44px;height:38px;font-size:15px;font-weight:600;padding:0 10px;cursor:pointer;flex:0 0 auto}
+.hbtn:active{background:rgba(255,255,255,.32)}
+.htitle{flex:1;text-align:center;font-weight:700;font-size:15.5px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.hsub{text-align:center;font-size:12px;opacity:.85;margin-top:2px}
+.pbar{height:4px;background:rgba(255,255,255,.25);border-radius:2px;margin-top:8px;overflow:hidden}
+.pfill{height:100%;background:#fff;border-radius:2px;transition:width .25s}
+/* Main */
+main{flex:1;padding:14px 14px calc(96px + env(safe-area-inset-bottom,0px)) 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.tile{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:10px;
+  cursor:pointer;color:var(--ink);font-size:16px}
+.tile:active{background:var(--acc2)}
+.tile .ic{font-size:26px;flex:0 0 34px;text-align:center}
+.tile .tt{flex:1}.tile .tt b{display:block;font-size:16px}
+.tile .tt small{color:var(--mut);font-size:13px;display:block;margin-top:2px}
+.tile .arr{color:var(--mut);font-size:20px;flex:0 0 auto}
+.badge{display:inline-block;background:var(--acc2);color:var(--acc);font-size:12px;font-weight:700;
+  border-radius:7px;padding:2px 8px;margin-right:6px}
+.badge.done{background:var(--ok2);color:var(--ok)}
+h2{font-size:19px;margin:4px 0 12px}
+h3{font-size:16px;margin:0 0 8px}
+.sec{font-size:13px;font-weight:700;color:var(--mut);text-transform:uppercase;
+  letter-spacing:.04em;margin:18px 4px 8px}
+.info{background:var(--acc2);border-left:4px solid var(--acc);border-radius:0 10px 10px 0;
+  padding:10px 12px;font-size:14px;margin:0 0 12px;color:var(--ink)}
+.info b{color:var(--acc)}
+.warnbox{background:var(--warn2);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;
+  padding:10px 12px;font-size:14px;margin:0 0 12px}
+.hint{font-size:13px;color:var(--mut);margin:4px 0 0}
+details{margin:8px 0;background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14px}
+details summary{cursor:pointer;font-weight:600;color:var(--acc)}
+details[open]{padding-bottom:10px}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  font-size:12.5px;padding:3px 8px;margin:2px 4px 2px 0;color:var(--mut)}
+/* Items */
+.item{padding:11px 4px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:none}
+.ilabel{font-size:15.5px;font-weight:500}
+.ihelp{font-size:13px;color:var(--mut);margin-top:3px}
+.checkrow{display:flex;gap:11px;align-items:flex-start;cursor:pointer}
+.cbox{flex:0 0 26px;height:26px;border:2px solid var(--mut);border-radius:8px;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;background:transparent}
+.checkrow.on .cbox{background:var(--ok);border-color:var(--ok)}
+.checkrow.na .cbox{background:var(--mut);border-color:var(--mut)}
+.checkrow .cwrap{flex:1}
+.nabtn{border:none;background:none;color:var(--mut);font-size:12.5px;text-decoration:underline;
+  padding:4px 0 0;cursor:pointer}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:9px}
+.opt{border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:11px 12px;
+  text-align:left;font-size:15px;cursor:pointer;color:var(--ink);display:flex;gap:9px;align-items:center}
+.opt .dot{flex:0 0 20px;height:20px;border:2px solid var(--mut);border-radius:50%}
+.opt.multi .dot{border-radius:6px}
+.opt.sel{border-color:var(--acc);background:var(--acc2)}
+.opt.sel .dot{background:var(--acc);border-color:var(--acc);position:relative}
+.opt.sel .dot::after{content:"✓";color:#fff;font-size:13px;font-weight:800;position:absolute;
+  left:50%;top:50%;transform:translate(-50%,-52%)}
+input[type=text],input[type=number],input[type=date],textarea,select{
+  width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--card);color:var(--ink);margin-top:8px;font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--acc);border-color:var(--acc)}
+textarea{min-height:74px;resize:vertical}
+.rangewrap{display:flex;align-items:center;gap:12px;margin-top:10px}
+input[type=range]{flex:1;accent-color:var(--acc);height:34px}
+.rval{flex:0 0 auto;min-width:64px;text-align:center;background:var(--acc2);color:var(--acc);
+  font-weight:800;border-radius:9px;padding:7px 8px;font-size:15px}
+/* Calc */
+.calcout{background:var(--ok2);border:1px solid var(--ok);border-radius:11px;padding:11px 12px;
+  margin-top:10px;font-size:15px}
+.calcout b{font-size:17px}
+.ftable{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+.ftable td,.ftable th{border-bottom:1px solid var(--line);padding:7px 5px;text-align:left;vertical-align:top}
+.ftable th{color:var(--mut);font-size:12px;text-transform:uppercase}
+.ftable .dt{white-space:nowrap;font-weight:700}
+.ftable tr.key td{color:var(--acc);font-weight:600}
+.addrow{border:1.5px dashed var(--acc);color:var(--acc);background:none;border-radius:11px;
+  padding:10px;width:100%;font-size:14.5px;font-weight:600;cursor:pointer;margin-top:10px}
+.delrow{border:none;background:none;color:var(--danger);font-size:13px;cursor:pointer;padding:4px 0}
+/* Footer nav */
+footer{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--card);
+  border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(16,34,60,.08)}
+.frow{max-width:640px;margin:0 auto;display:flex;gap:10px;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px)) 14px}
+.fbtn{flex:1;border:none;border-radius:12px;font-size:16px;font-weight:700;padding:14px 8px;cursor:pointer}
+.fback{background:var(--bg);color:var(--ink);border:1.5px solid var(--line)}
+.fnext{background:var(--acc);color:#fff}
+.fnext:disabled{opacity:.45}
+.fhome{flex:0 0 56px;background:var(--bg);border:1.5px solid var(--line);color:var(--ink);font-size:20px}
+.fbtn:active{transform:scale(.98)}
+/* Buttons misc */
+.btn{display:block;width:100%;border:none;border-radius:12px;font-size:16px;font-weight:700;
+  padding:14px;cursor:pointer;margin-top:10px}
+.bpri{background:var(--acc);color:#fff}
+.bok{background:var(--ok);color:#fff}
+.bsec{background:var(--bg);color:var(--ink);border:1.5px solid var(--line)}
+.bdanger{background:none;color:var(--danger);border:1.5px solid var(--danger)}
+.undo{border:none;background:none;color:var(--acc);font-size:13.5px;font-weight:600;
+  cursor:pointer;padding:6px 0;text-decoration:underline}
+.search{width:100%;font-size:16px;padding:12px;border:1.5px solid var(--line);border-radius:12px;
+  background:var(--card);color:var(--ink);margin-bottom:12px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);
+  color:var(--bg);padding:10px 18px;border-radius:12px;font-size:14.5px;font-weight:600;z-index:50;
+  opacity:0;transition:opacity .25s;pointer-events:none;max-width:88%;text-align:center}
+.toast.show{opacity:1}
+.qmrow{display:flex;gap:10px;align-items:flex-start;padding:9px 2px;border-bottom:1px solid var(--line);font-size:14.5px}
+.qmrow:last-child{border-bottom:none}
+.done-icon{font-size:52px;text-align:center;margin:6px 0 2px}
+.center{text-align:center}
+.small{font-size:13px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="hdr"></header>
+  <main id="main"></main>
+</div>
+<footer id="ftr"></footer>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   ARBEITSVORGÄNGE-APP – SB Organisation (1.1.2), Stadt Lahnstein
+   Datenbasis: Obsidian-Vault "Arbeit" – Handbuch Arbeitsvorgänge
+   (Bereiche 1–4) + Handbuch Arbeitsvorgänge Wahlen (Bereich 5).
+   Stand der Inhalte: 03.07.2026. Rechtsstände vor Anwendung
+   prüfen (landesrecht.rlp.de, gesetze-im-internet.de, wahlen.rlp.de).
+   ============================================================ */
+
+/* ---------- Bereiche (Aufgabengebiete) ---------- */
+const BEREICHE=[
+ {id:"b1",nr:1,icon:"🏛️",titel:"Aufbau- und Organisationsstruktur",
+  kurz:"Strukturen, Leitungsspannen, Organigramm, Stellenbeschreibungen",
+  grund:["Sachzusammenhang: zusammengehörende Aufgaben in eine Einheit; keine personenbezogenen Konstruktionen (Grundsätze RH Ziff. 8.1).",
+   "Organisatorisches Minimum: wenige Ebenen, große Einheiten (Ziff. 8.2). Mindestleitungsspanne Ortsinstanz 1:12; SRH-Modelloptimum für Städte 10–20.000 EW: 1:6–1:7.",
+   "Einheit der Auftragserteilung: jede Person nur einer Führungskraft unterstellt (Ziff. 8.4). AKV-Prinzip: Aufgabe, Kompetenz, Verantwortung auf einer Ebene (Ziff. 8.5).",
+   "Stabsstellen nur bei dauerhaftem Unterstützungsbedarf der Leitung, keine operativen Daueraufgaben (Ziff. 8.6).",
+   "Strukturänderungen erst nach Organisationsuntersuchung (Ziff. 8.7). Grunddokumente aktuell halten: Organigramm, GVP, ADGA, Aufgabenkatalog, Prozesslandkarte.",
+   "ADGA Ziff. 6.2/7.2: Organisationsaufgaben liegen bei FB 1; frühzeitige Beteiligung bei allen Struktur-Maßnahmen. Freigabeweg: Büroleiter → OB (Ziff. 48.3)."],
+  aufgaben:[
+   {t:"Organigramm & Geschäftsverteilung",avs:["av11","av14"]},
+   {t:"Analyse & Reorganisation",avs:["av12","av13"]},
+   {t:"Beteiligung & laufende Regelungen",avs:["av15","av16"]}]},
+ {id:"b2",nr:2,icon:"🔄",titel:"Prozessmanagement und Ablauforganisation",
+  kurz:"Prozesslandkarte, Ist-Aufnahme, Optimierung, Umsetzung, Controlling",
+  grund:["Leitmodell BMI-Leitfadenreihe: Auswahl → Erhebung → Dokumentation/Analyse → Optimierung → Umsetzung → Steuerung → Weiterentwicklung.",
+   "Rollen vorab klären: Prozessmanager (= SG 1.1.2), Prozesseigentümer (FB-/SG-Leitung), Prozessverantwortliche (Sachbearbeitung), Fachexperten, Modellierer.",
+   "Methodische Reihenfolge (RH Ziff. 5.1): Aufgabenkritik → Prozessoptimierung → Personalbedarf. Nie Personal auf ungeprüften Ist-Zustand bemessen.",
+   "Pareto-Prinzip: Erhebung nicht perfektionieren; Ist nur so detailliert wie nötig. 10er-Regel: Fehler in der Zieldefinition werden zehnfach teuer.",
+   "Betroffene zu Beteiligten machen: vor jeder Erhebung informieren; Erhebungen sind keine Leistungskontrolle; anonymisiert auswerten.",
+   "ADGA Ziff. 34–52 regelt den allgemeinen Geschäftsgang als Standardprozess – Änderungen laufen über AV 1.6."],
+  aufgaben:[
+   {t:"Überblick & Auswahl",avs:["av21"]},
+   {t:"Analyse & Optimierung",avs:["av22","av23"]},
+   {t:"Umsetzung & Steuerung",avs:["av24","av25"]}]},
+ {id:"b3",nr:3,icon:"👥",titel:"Personalbedarfsermittlung und Stellenbemessung",
+  kurz:"Organisationsuntersuchungen, PBE-Formel, Stellenbewertung, Stellenplan",
+  grund:["Kernformel (Leitsätze RH 2024): Personalbedarf (VZÄ) = (Jahresmenge × mittlere Bearbeitungszeit) ÷ Jahresarbeitszeit einer Normalarbeitskraft.",
+   "Verteilzeiten pauschal 10–15 % auf die Grundzeit; Leerzeiten sind kein Verteilzeitgrund; keine Doppelerfassung. KLR-Zeitbuchungen sind als Bearbeitungszeiten ungeeignet.",
+   "JAZ verwaltungsspezifisch berechnen (Soll-Arbeitszeit × Nettoarbeitstage, RLP-Feiertage, eigene Krankenstatistik); nach Laufbahngruppen differenzieren. Kommunaler Anhalt SRH: ~123 Std. Nettoleistungszeit/Monat.",
+   "Quantifizierbare Aufgaben analytisch, dispositiv-kreative per analytischem Schätzen (ggf. PERT). Teilerhebung vor Vollerhebung. Max. ~10 Katalogpositionen je Arbeitsplatz bei Zeitaufnahmen.",
+   "Benchmarks (RH RLP 2016/2025, SRH 2,32+0,08 VK je 1.000 EW) nur zur Plausibilisierung, nie als alleinige Begründung. Mehr-/Minderbedarfe konkret begründen, keine Bagatellen.",
+   "Eigenerledigung vor Fremdvergabe (RH RLP Kommunalbericht 2024): PBE grundsätzlich mit eigenem Personal; extern nur begründet, mit Wissenstransfer und fortschreibungsfähiger Methodik."],
+  aufgaben:[
+   {t:"Untersuchung planen & erheben",avs:["av31","av32"]},
+   {t:"Berechnen & berichten",avs:["av33","av34"]},
+   {t:"Bewertung & Stellenplan",avs:["av35","av36"]}]},
+ {id:"b4",nr:4,icon:"💶",titel:"Wirtschaftlichkeitsuntersuchungen",
+  kurz:"Kosten-Nutzen, Eigen vs. Fremd, Kapitalwert, Nutzwert, Erfolgskontrolle",
+  grund:["Rechtsrahmen: § 93 Abs. 3 GemO (sparsam & wirtschaftlich), § 10 GemHVO + VV (Folgekosten, Dringlichkeit vor Investitionen). Methodenstandard: Arbeitsanleitung zu § 7 BHO.",
+   "Auch Organisationsmaßnahmen sind finanzwirksam → WU-Pflicht gilt für eigene Reorganisations- und Prozessvorschläge (Grundsätze RH Ziff. 1).",
+   "Methodenwahl: einfachste angemessene Methode. Monetär: Kapitalwertmethode (Standard), Kostenvergleich/Amortisation für einfache Fälle. Nicht monetär: Nutzwertanalyse – nur kombiniert mit monetärem Verfahren.",
+   "Immer den Fortführungsfall (nichts tun) als Referenz mitprüfen. Gleicher Betrachtungszeitraum und Zins für alle Alternativen.",
+   "Bei Fremdvergabe: Transaktionskosten (Vergabe, Vertragscontrolling) und Remanenzkosten (weiterlaufende eigene Kosten) einrechnen – häufigste Prüfungsfeststellung des RH RLP.",
+   "WU vor der Entscheidung und vor Einleitung des Vergabeverfahrens. Kriterien der Erfolgskontrolle schon im Design festlegen."],
+  aufgaben:[
+   {t:"Vorbereiten & erheben",avs:["av41","av42"]},
+   {t:"Bewerten",avs:["av43","av44"]},
+   {t:"Entscheiden & kontrollieren",avs:["av45","av46"]}]},
+ {id:"b5",nr:5,icon:"🗳️",titel:"Wahlen",
+  kurz:"Leitung Wahlamt (SG 1.1.4): Wahlen, Bürgerentscheide, Volksbegehren",
+  grund:["Rollen: Bei Kommunalwahlen/Direktwahlen/Bürgerentscheiden ist der OB Wahlleiter (§ 7 KWG), das Wahlamt führt die laufenden Wahlgeschäfte. Bei BTW/EP/LTW ist die Stadt Wahlbehörde (Wählerverzeichnis, Briefwahl, Wahlvorstände); Zulassung/Feststellung beim Kreis-/Landeswahlleiter.",
+   "Fristenlogik: Alle Fristen rechnen vom Wahltag zurück (T−x). KEINE Verlängerung bei Samstag/Sonntag/Feiertag, keine Wiedereinsetzung (§ 75 KWG). Fristversäumnis ist fast nie heilbar.",
+   "Öffentlichkeit von Wahlhandlung, Auszählung und Wahlausschusssitzungen; Wahlgeheimnis (Kabinen, Mindestgröße der Bezirke); Neutralität der Verwaltung.",
+   "Jede Entscheidung aktenfest dokumentieren (Wahlprüfung §§ 48–52 KWG antizipieren). Bekanntmachungen in der Form der Hauptsatzung/ADGA Ziff. 66 (Rhein-Lahn-Kurier) – falsche Form ist klassischer Wahlfehler.",
+   "Rechtsquellen je Wahlart: Kommunal = KWG/KWO RLP; BTW = BWahlG/BWO; EP = EuWG/EuWO; LTW = LWahlG/LWO; Bürgerentscheid = § 17a GemO + §§ 67–70 KWG; Volksbegehren = Art. 107 ff. LV + LWahlG.",
+   "Vor jedem Wahlzyklus: aktuellen Terminkalender und Rundschreiben des Landeswahlleiters ziehen (wahlen.rlp.de) – sie haben Vorrang vor älteren Ständen."],
+  aufgaben:[
+   {t:"Wahl vorbereiten",avs:["av51","av52","av53","av54"]},
+   {t:"Wahlorgane & Wahlvorschläge",avs:["av55","av56","av57"]},
+   {t:"Wahltag & Ergebnis",avs:["av58","av59","av510"]},
+   {t:"Direkte Demokratie",avs:["av511","av512"]},
+   {t:"Laufender Betrieb",avs:["av513"]}]}
+];
+
+/* ---------- Arbeitsvorgänge ----------
+   Schema: {id, b, nr, titel, ziel, ausloeser[], grundlagen[], beteiligte[],
+     steps:[{t, info, warn?, items:[{ty:'check'|'choice'|'text'|'num'|'range'|'date'|'calc',
+       l, help?, opts?, multi?, min?, max?, step?, unit?, def?, id?, showIf:{id,eq}?, kind?}]}],
+     ergebnis, qualitaet[]}                                            */
+const AVS={
+av11:{id:"av11",b:"b1",nr:"AV 1.1",titel:"Fortschreibung Organigramm & Geschäftsverteilungsplan",
+ ziel:"Verwaltungsgliederungsplan (Organigramm) und GVP aktuell, konsistent und freigegeben halten. Beide sind Bestandteil der ADGA – jede Änderung ist eine Organisationsregelung.",
+ ausloeser:["Stellen-/Personalveränderung","Neuzuordnung oder Umbenennung von Sachgebieten","ADGA-Änderung","Beschluss aus Reorganisation (AV 1.3)","Jährlicher Pflegeturnus"],
+ grundlagen:["ADGA Ziff. 7.1 (Organigramm/GVP = ADGA-Bestandteil)","ADGA Ziff. 48.3 (OB-Unterschrift)","Grundsätze RH Ziff. 2.5","Organigramm Lahnstein (Ist-Stand)"],
+ beteiligte:["FB-Leitungen","SG 1.1.3 Personal","Büroleiter","OB","Info an Personalrat"],
+ steps:[
+  {t:"1. Änderungsanlass erfassen und qualifizieren",
+   info:"Erst sauber klären, WAS sich ändert und ob es reine Pflege ist oder strukturell wirkt. Strukturelle Änderungen brauchen zuerst eine Untersuchung (AV 1.3) bzw. Stellungnahme (AV 1.5).",
+   items:[
+    {ty:"check",l:"Meldung/Auftrag schriftlich festgehalten",help:"Wer meldet was, gültig ab wann, Rechtsgrund (Einstellung, Versetzung, Umressortierung, Ratsbeschluss …)"},
+    {ty:"text",l:"Was ändert sich konkret?",ph:"Bezeichnung, Zuordnung, Unterstellung, Aufgabenübergang …",long:true},
+    {ty:"check",l:"Mit aktuellem Organigramm und GVP abgeglichen"},
+    {ty:"choice",id:"art11",l:"Einordnung der Änderung:",opts:["Reine Pflege/Aktualisierung","Strukturelle Wirkung → zuerst AV 1.3 bzw. AV 1.5!"],
+     help:"Bei struktureller Wirkung diesen AV pausieren und die Untersuchung/Stellungnahme vorschalten."}]},
+  {t:"2. Betroffene Einheiten und Schnittstellen klären",
+   info:"ADGA Ziff. 7.2 wirkt in beide Richtungen: Auch die Fachbereiche sind anzuhören. Folgewirkungen werden gern vergessen – Checkliste nutzen.",
+   items:[
+    {ty:"check",l:"FB-Leitung(en) der betroffenen Bereiche angehört"},
+    {ty:"check",l:"Vertretungsregelungen geprüft",help:"ADGA Ziff. 11.4, 22"},
+    {ty:"check",l:"Zeichnungsbefugnisse/Mitzeichnungspflichten geprüft",help:"ADGA Ziff. 48; GVP bestimmt, wer zu beteiligen ist (48.5)"},
+    {ty:"check",l:"Dienstsiegel, Telefon-/Raumverzeichnis, Intranet geprüft"},
+    {ty:"check",l:"Bei Personalwirkung: SG 1.1.3 Personal eingebunden (Stellenplan-Konsistenz → AV 3.6)"}]},
+  {t:"3. Dokumente fortschreiben",
+   info:"Kernregel: Organigramm ↔ GVP ↔ Stellenplan ↔ Stellenbeschreibungen müssen widerspruchsfrei sein (Dreifach-Konsistenzprüfung).",
+   items:[
+    {ty:"check",l:"Organigramm aktualisiert",help:"Bezeichnungen, Hierarchie, Unterstellungen; eine Seite, Nummernsystematik 1.1.1 ff."},
+    {ty:"check",l:"GVP angepasst: Aufgaben, Zuständigkeiten, Vertretungen eindeutig und überschneidungsfrei"},
+    {ty:"check",l:"Konsistenz geprüft: Organigramm ↔ GVP ↔ Stellenplan ↔ Stellenbeschreibungen (→ AV 1.4)"}]},
+  {t:"4. Abstimmung und Freigabe",
+   info:"Freigabeweg nach ADGA Ziff. 48.3: über den Büroleiter an den OB, wenn die Regelung verwaltungsweite Bedeutung hat.",
+   items:[
+    {ty:"check",l:"Entwurf mit SG Personal und Büroleiter abgestimmt"},
+    {ty:"check",l:"Bei verwaltungsweiter Bedeutung: OB-Unterschrift eingeholt (ADGA Ziff. 48.3)"},
+    {ty:"check",l:"Versionsstand dokumentiert",help:"Datum, Anlass, geänderte Positionen – Änderungshistorie führen"},
+    {ty:"date",l:"Freigabedatum"}]},
+  {t:"5. Veröffentlichung und Nachpflege",
+   info:"Ohne Veröffentlichung und Folgeaktualisierungen ist die Fortschreibung nicht abgeschlossen – Wiedervorlage setzen!",
+   items:[
+    {ty:"check",l:"Im Intranet bereitgestellt, Verteiler bedient",help:"FB-Leitungen, Personalrat, Pressestelle für Außendarstellung"},
+    {ty:"check",l:"Folgeaktualisierungen angestoßen: Stellenbeschreibungen (AV 1.4), Telefonverzeichnis, Webseite"},
+    {ty:"check",l:"Wiedervorlage für Jahresturnus gesetzt"}]}],
+ ergebnis:"Aktueller, freigegebener und veröffentlichter Verwaltungsgliederungsplan mit Änderungshistorie.",
+ qualitaet:["Jede Stelle genau einer Führungskraft zugeordnet","Keine Lücken/Doppelzuständigkeiten im GVP","Versionsstand und Freigabe aktenkundig","Organigramm, GVP, Stellenplan und Stellenbeschreibungen widerspruchsfrei"]},
+
+av12:{id:"av12",b:"b1",nr:"AV 1.2",titel:"Analyse und Bewertung von Leitungsspannen",
+ ziel:"Führungsstrukturen anhand von Einflussfaktoren bewerten – nicht nach Pauschalwerten. Referenz: Mindestspanne Ortsinstanz 1:12 (RH), SRH-Korridor 1:6–1:7 für Städte 10–20.000 EW.",
+ ausloeser:["Reorganisation/geplante Strukturänderung","Führungsvakanz (Chance zur Strukturprüfung vor Wiederbesetzung!)","Auffälligkeiten (Überlastung, Beschwerden, lange Wege)","Anlasslose Regelprüfung","Prüfungsfeststellung GPA/Rechnungshof"],
+ grundlagen:["Orghandbuch Kap. 1.1.1.1 + 2.4.3.11.7","Grundsätze RH Ziff. 8.2/8.3","SRH-Organisationsmodell (1:6–1:7)"],
+ beteiligte:["Betroffene Führungskräfte","Büroleiter/OB","Bei Personalfolgen: SG Personal + Personalrat"],
+ steps:[
+  {t:"1. Untersuchungsgegenstand abgrenzen, Kennzahlen festlegen",
+   info:"Kopfzahl UND VZÄ getrennt erfassen – Teilzeit verzerrt sonst das Bild.",
+   items:[
+    {ty:"text",l:"Betrachtete Einheit(en)",ph:"z. B. FB 2.2, SG 1.1.5, gesamte Verwaltung"},
+    {ty:"check",l:"Kennzahlen definiert: direkt Unterstellte (Köpfe + VZÄ), Anteil eigener Sachbearbeitung der Führungskraft, Zahl Hierarchieebenen, Aufgabencharakter"}]},
+  {t:"2. Ist-Daten erheben",
+   info:"Quellen: Organigramm, GVP, Stellenplan, Stellenbeschreibungen, Aufgabengliederung – plus Kurzinterviews zur tatsächlichen Belastung.",
+   items:[
+    {ty:"num",l:"Direkt unterstellte Personen (Köpfe)"},
+    {ty:"num",l:"Direkt unterstellte VZÄ"},
+    {ty:"range",l:"Anteil eigener Sachbearbeitung der Führungskraft",min:0,max:100,step:5,unit:" %",def:30,
+     help:"Aus Stellenbeschreibung/Interview schätzen"},
+    {ty:"check",l:"Spektrum der Leitungsaufgaben je Führungskraft erfasst",help:"Anleitung, Aufgabenverteilung, Koordination/Kontrolle, Mitarbeitergespräche, Besprechungswesen (Katalog Orghandbuch)"},
+    {ty:"check",l:"Kurzinterviews mit Führungskräften geführt"}]},
+  {t:"3. Einflussfaktoren bewerten",
+   info:"Das Orghandbuch-Raster verhindert Pauschalurteile: Größere Spannen sind ok bei Routine, hoher Qualifikation, hohem Delegationsgrad.",
+   items:[
+    {ty:"choice",l:"Aufgabenseite:",opts:["Überwiegend Routine/standardisiert","Gemischt","Komplex/neuartig/dynamisch"]},
+    {ty:"choice",l:"Beschäftigtenseite (Qualifikation/Selbstständigkeit):",opts:["Hoch – Selbstabstimmung","Mittel","Gering – Einzelanweisung nötig"]},
+    {ty:"choice",l:"Führungskraftseite (Delegation/Entlastung):",opts:["Hoher Delegationsgrad, gute Entlastung","Mittel","Wenig Delegation, viel eigene Sachbearbeitung"]},
+    {ty:"text",l:"Dokumentation der Bewertung je Einheit",long:true}]},
+  {t:"4. Spannen bewerten",
+   info:"Unterspannung (zu kleine Einheit) → Zusammenlegung, Wegfall der Ebene oder Aufgabenanreicherung prüfen. Überspannung → erst Delegation/Teamstrukturen, nicht reflexhaft neue Ebene.",
+   warn:"Nie anhand persönlicher Merkmale einzelner Führungskräfte bewerten – nur Struktur und Einflussfaktoren zählen.",
+   items:[
+    {ty:"choice",id:"span12",l:"Befund im Vergleich zu 1:6–1:7 (SRH) bzw. Untergrenze 1:12 (RH):",
+     opts:["Im Korridor – unauffällig","Unterspannung (zu wenige Unterstellte) – begründungspflichtig","Überspannung – Überlastungsindikatoren prüfen"]},
+    {ty:"check",l:"Bei Überspannung: Qualität, Rückstände, Fluktuation geprüft",showIf:{id:"span12",eq:"Überspannung – Überlastungsindikatoren prüfen"}},
+    {ty:"check",l:"Hierarchietiefe bewertet (flach vs. steil, Orghandbuch Tab. 3)"}]},
+  {t:"5. Empfehlung erarbeiten und abstimmen",
+   info:"Empfehlung braucht Alternativenvergleich, Auswirkungen (Personal, Besoldung → AV 3.5, Kosten) und Umsetzungspfad. Bei struktureller Konsequenz → AV 1.3.",
+   items:[
+    {ty:"text",l:"Optimierungsoptionen mit Begründung",long:true},
+    {ty:"check",l:"Mit betroffenen Führungskräften erörtert (Fairness, Akzeptanz)"},
+    {ty:"check",l:"Entscheidungsvorlage an Büroleiter/OB erstellt"},
+    {ty:"choice",l:"Überleitung:",opts:["Keine – Befund unauffällig","→ AV 1.3 Reorganisation","→ AV 3.6 Stellenplan"]}]}],
+ ergebnis:"Dokumentierte Bewertung der Führungsstruktur je Einheit + begründete Optimierungsempfehlung.",
+ qualitaet:["Bewertung stützt sich auf Einflussfaktoren, nicht auf Pauschalwerte allein","Keine Bewertung anhand persönlicher Merkmale","VZÄ und Köpfe getrennt ausgewiesen","Empfehlung enthält Alternativenvergleich"]},
+
+av13:{id:"av13",b:"b1",nr:"AV 1.3",titel:"Organisationsuntersuchung Aufbaustruktur (Reorganisation)",
+ ziel:"Strukturänderungen nur nach Untersuchung: Phasen Planung → Ist → Analyse → Soll → Umsetzung → Kontrolle. Aufgabenkritik VOR Strukturentscheidung.",
+ ausloeser:["Erkanntes Strukturproblem (Doppelstrukturen, Schnittstellenbrüche, AV 1.2-Befund)","Neue oder wegfallende Aufgaben","Konsolidierungs-/Sparvorgabe","Politischer Auftrag (OB, Stadtrat)","GPA-/RH-Prüfungsergebnis"],
+ grundlagen:["Orghandbuch Kap. 2 (Vorgehensmodell) + Kap. 3 (Aufgabenkritik)","Grundsätze RH Ziff. 5, 6, 8","SRH-Organisationsmodell als Soll-Referenz"],
+ beteiligte:["Auftraggeber OB/Büroleiter","Betroffene FB-Leitungen + Beschäftigte","SG Personal","Personalrat","ggf. Gremien"],
+ steps:[
+  {t:"1. Auftrag klären und Projekt aufsetzen",
+   info:"10er-Regel: Fehler in der Zieldefinition werden später zehnfach teuer. Ziele lösungsneutral, vollständig, messbar (SMART).",
+   items:[
+    {ty:"text",l:"Ziele (schriftlich, mit Auftraggeber fixiert)",long:true},
+    {ty:"text",l:"Untersuchungsbereich (was gehört dazu, was ausdrücklich nicht?)",long:true},
+    {ty:"check",l:"Projektauftrag erstellt",help:"Vorgehen, Methoden, Meilensteine, Zeit-/Ressourcenplan, Berichtswege; bei größeren Projekten Lenkungskreis"},
+    {ty:"check",l:"Personalrat informiert, Kommunikationsplan für Beschäftigte aufgestellt"}]},
+  {t:"2. Voruntersuchung (bei komplexen/unscharfen Aufträgen)",
+   info:"Entfällt bei einfachen Fragestellungen. Zweck: Machbarkeit, Wirtschaftlichkeit und Methodik der Hauptuntersuchung festlegen.",
+   items:[
+    {ty:"choice",id:"vu13",l:"Voruntersuchung nötig?",opts:["Ja – Auftrag komplex/unscharf","Nein – direkt zur Hauptuntersuchung"]},
+    {ty:"check",l:"Dokumentenanalyse durchgeführt",help:"Organigramm, GVP, Stellenplan, Stellenbeschreibungen, Prüfberichte, frühere Untersuchungen",showIf:{id:"vu13",eq:"Ja – Auftrag komplex/unscharf"}},
+    {ty:"check",l:"Orientierungsinterviews mit Leitungen geführt",showIf:{id:"vu13",eq:"Ja – Auftrag komplex/unscharf"}},
+    {ty:"check",l:"Auftrag nachgeschärft, Methodik festgelegt",showIf:{id:"vu13",eq:"Ja – Auftrag komplex/unscharf"}}]},
+  {t:"3. Ist-Erhebung",
+   info:"Ist-Zustand nur so detailliert erheben, wie zur Problemlösung nötig (Pareto). Bewährt: SRH-Erhebungsbögen (A Allgemeines, B Arbeitsplatzbeschreibungen, C Mengen, D Zeiten).",
+   items:[
+    {ty:"check",l:"Aufgabenbestand erhoben (Aufgabenkatalog je Einheit, vom Groben zum Detail)"},
+    {ty:"check",l:"Mengen und Zeitanteile mindestens grob erfasst (ABC-tauglich)"},
+    {ty:"check",l:"Strukturen erfasst: Unterstellungen, Leitungsspannen (→ AV 1.2), Schnittstellen, Zeichnungsregelungen, Vertretungen"},
+    {ty:"check",l:"Rahmenbedingungen: Rechtsgrundlagen, Gremien, IT, Räume"},
+    {ty:"check",l:"Erhebungsergebnisse mit dem Bereich rückgekoppelt",help:"Abstimmung schützt vor Fehlinterpretation"}]},
+  {t:"4. Ist-Analyse / Schwachstellenanalyse",
+   info:"Aufgabenkritik zuerst: Zweckkritik (Aufgabe nötig? reduzierbar? übertragbar?) und Vollzugskritik (wirtschaftlicher/schneller/besser?). Aufgaben ohne Rechtsgrund/Nutzen streichen statt organisieren.",
+   items:[
+    {ty:"check",l:"Zweckkritik je Aufgabe durchgeführt"},
+    {ty:"check",l:"Vollzugskritik durchgeführt (→ ggf. Prozessanalyse Bereich 2)"},
+    {ty:"check",l:"Schwachstellen systematisch gesucht (Checkliste Orghandbuch Tab. 10)",help:"Überflüssige/unklare Aufgaben, Doppelarbeit, ungleiche Auslastung, fehlende AKV-Kongruenz, überflüssige Stabsstellen, umständliche Wege"},
+    {ty:"check",l:"Compliance geprüft: Gremienstruktur, gesetzliche Zuständigkeiten, ADGA-Konformität"},
+    {ty:"check",l:"Befunde priorisiert (ABC/Portfolio), Ursachen statt Symptome dokumentiert"}]},
+  {t:"5. Soll-Konzeption",
+   info:"Varianten ECHT vergleichen statt Lieblingslösung begründen. Verworfene Varianten dokumentieren – erspart künftige Doppelarbeit.",
+   items:[
+    {ty:"check",l:"Gestaltungsvarianten entwickelt",help:"Kreativtechniken; Vergleich mit SRH-Referenzstruktur und KGSt-Organisationsmustern"},
+    {ty:"check",l:"Je Variante: Struktur, Aufgabenzuordnung, Leitungsspannen, Personalbedarf (→ Bereich 3), Schnittstellen beschrieben"},
+    {ty:"check",l:"Varianten bewertet: K.-o.-Kriterien, monetär (Kostenvergleich/Kapitalwert → AV 4.3), qualitativ (Nutzwertanalyse → AV 4.4)"},
+    {ty:"text",l:"Votum mit Begründung",long:true}]},
+  {t:"6. Bericht, Entscheidung, Umsetzungsbegleitung",
+   info:"Umsetzung ist ein eigenes Folgeprojekt mit Maßnahmenplan (Wer? Was? Bis wann?) und Veränderungsmanagement. Erfolgskontrolle nach Konsolidierungsphase terminieren.",
+   items:[
+    {ty:"check",l:"Abschlussbericht erstellt",help:"Auftrag, Vorgehen, Ist + Problemanalyse, begründete Lösungsvorschläge, Managementfassung, Maßnahmenkatalog, ggf. Personalbedarf"},
+    {ty:"check",l:"Ergebnispräsentation bei OB/Gremien; Entscheidung dokumentiert"},
+    {ty:"check",l:"Folge-AVs angestoßen: Organigramm/GVP (AV 1.1), Stellenbeschreibungen (AV 1.4), Stellenplan (AV 3.6)"},
+    {ty:"date",l:"Termin Erfolgskontrolle (nach Konsolidierung)"}]}],
+ ergebnis:"Belastbare, dokumentierte Entscheidungsgrundlage (Abschlussbericht) + begleitete Umsetzung der beschlossenen Struktur.",
+ qualitaet:["Aufgabenkritik vor Strukturentscheidung","Jede Strukturänderung durch Untersuchung unterlegt (Ziff. 8.7)","Varianten echt verglichen statt Lieblingslösung begründet","Bericht fortschreibungsfähig dokumentiert"]},
+
+av14:{id:"av14",b:"b1",nr:"AV 1.4",titel:"Stellenbeschreibungen erstellen und pflegen",
+ ziel:"Aktuelle, gegengezeichnete Stellenbeschreibungen als Grundlage für Bewertung (AV 3.5) und Bemessung. Detailtiefe-Maßstab: Arbeitsvorgänge müssen ableitbar sein.",
+ ausloeser:["Neue oder geänderte Stelle","ADGA Ziff. 7.3 (Pflicht zu aktuellen Stellenbeschreibungen)","Anstehende Stellenbewertung (AV 3.5)","Erkenntnisse aus Untersuchungen (AV 1.3, Bereich 3)","Turnusprüfung"],
+ grundlagen:["Orghandbuch Kap. 6.2.5","KGSt-Muster-Stellenbeschreibung (ID 1162)","ADGA Ziff. 7.3"],
+ beteiligte:["Stelleninhaber/in","Führungskraft","SG Personal"],
+ steps:[
+  {t:"1. Aufgaben der Stelle erheben",
+   info:"Wichtigster Qualitätsmaßstab: Tätigkeiten so konkret beschreiben, dass sich daraus die Arbeitsvorgänge (Zeitanteile, Tätigkeitsblöcke) für die spätere Bewertung ableiten lassen.",
+   items:[
+    {ty:"check",l:"Vorhandene Unterlagen gesichtet",help:"Alte Beschreibung, GVP, Aufgabengliederung, Organigramm"},
+    {ty:"check",l:"Strukturiertes Interview mit Stelleninhaber/in geführt (Fragenkatalog)"},
+    {ty:"check",l:"Gegencheck mit Führungskraft erfolgt"}]},
+  {t:"2. Stellenbeschreibung nach einheitlichem Muster erstellen",
+   info:"Pflichtinhalte: organisatorische Einordnung, Ziel der Stelle, Aufgaben mit Zeitanteilen (Summe 100 %!), Befugnisse, dienstliche Kontakte, Anforderungen, Handlungsspielraum, Verantwortung.",
+   items:[
+    {ty:"check",l:"Alle Pflichtinhalte nach KGSt-Muster erfasst"},
+    {ty:"num",l:"Summe der Zeitanteile (%)",ph:"muss 100 ergeben",help:"Realistisch? Laufbahn-/EG-gerechte Aufgabenmischung?"},
+    {ty:"check",l:"Plausibilität geprüft: widerspruchsfrei zu GVP und Organigramm"}]},
+  {t:"3. Einordnung in den GVP prüfen",
+   info:"Keine Doppelzuständigkeiten, keine Lücken zu Nachbarstellen; Vertretungsregelung nach ADGA Ziff. 11.4.",
+   items:[
+    {ty:"check",l:"Schnittstellen zu Nachbarstellen geklärt"},
+    {ty:"check",l:"Vertretungsregelung festgelegt"},
+    {ty:"check",l:"Bei Abweichungen: GVP-Fortschreibung angestoßen (→ AV 1.1)"}]},
+  {t:"4. Abstimmen und freigeben",
+   info:"FB 1 führt die zentrale Sammlung (ADGA Ziff. 7.3) – ohne Gegenzeichnungen ist die Beschreibung nicht bewertungsfähig.",
+   items:[
+    {ty:"check",l:"Gegenzeichnung Stelleninhaber/in liegt vor"},
+    {ty:"check",l:"Gegenzeichnung Führungskraft liegt vor"},
+    {ty:"check",l:"Mitprüfung SG Personal erfolgt (Anschlussfähigkeit für Bewertung → AV 3.5)"},
+    {ty:"check",l:"Freigabe dokumentiert, zentral abgelegt"}]},
+  {t:"5. Pflege organisieren",
+   info:"Bei jeder Organisationsänderung (AV 1.1/1.3) betroffene Stellenbeschreibungen identifizieren und nachziehen.",
+   items:[
+    {ty:"choice",l:"Aktualisierungsturnus:",opts:["Alle 2 Jahre","Alle 3 Jahre","Nur anlassbezogen"]},
+    {ty:"check",l:"Wiedervorlage gesetzt"}]}],
+ ergebnis:"Aktuelle, gegengezeichnete Stellenbeschreibung; konsistenter GVP; bewertungsfähige Grundlage für Bereich 3.",
+ qualitaet:["Arbeitsvorgänge ableitbar","Zeitanteile = 100 %","Konsistenz mit GVP/Organigramm/Stellenplan","Gegenzeichnungen vollständig","Zentrale Ablage aktuell"]},
+
+av15:{id:"av15",b:"b1",nr:"AV 1.5",titel:"Stellungnahme zu Strukturmaßnahmen anderer Bereiche",
+ ziel:"Organisatorische Mitprüfung aller Maßnahmen mit Auswirkung auf Verwaltungsgliederung oder Geschäftsverteilung – die frühzeitige Beteiligung des FB 1 ist Pflicht (ADGA Ziff. 7.2).",
+ ausloeser:["Geplante Maßnahme eines Fachbereichs mit Strukturwirkung","Mitzeichnungsfall nach ADGA Ziff. 48.5","Anfrage zu Zeichnungsbefugnissen (Ziff. 48.9)"],
+ grundlagen:["ADGA Ziff. 7.2 (frühzeitige Beteiligung)","ADGA Ziff. 48","Maßstäbe Bereich 1 (Sachzusammenhang, Minimum, AKV, Stabsstellen)"],
+ beteiligte:["Initiierender Fachbereich","Büroleiter/OB","ggf. SG Personal und Personalrat"],
+ steps:[
+  {t:"1. Vorhaben sichten, Reichweite feststellen",
+   info:"Kommt die Beteiligung zu spät, deutlich anmahnen (Ziff. 7.2) und künftige Einbindung vereinbaren – sonst wiederholt sich das Muster.",
+   items:[
+    {ty:"check",l:"Eingang dokumentiert"},
+    {ty:"text",l:"Was genau soll sich ändern?",ph:"Aufgaben, Zuordnung, Personal, Abläufe, Außenwirkung",long:true},
+    {ty:"choice",l:"Beteiligung rechtzeitig?",opts:["Ja – frühzeitig","Nein – zu spät, angemahnt"]}]},
+  {t:"2. Organisatorische Auswirkungen prüfen",
+   info:"Prüfraster: Organigramm/GVP, Leitungsspannen, Schnittstellen, Vertretungen, Zeichnungsrecht + Konformität mit den Maßstäben aus Bereich 1.",
+   items:[
+    {ty:"check",l:"Auswirkung auf Organigramm/GVP geprüft"},
+    {ty:"check",l:"Leitungsspannen, Schnittstellen, Vertretungen, Zeichnungsrecht geprüft"},
+    {ty:"check",l:"Konformität mit Maßstäben (Sachzusammenhang, Minimum, AKV, Stabsstellen-Kriterien) und Gremien-/Rechtslage geprüft"},
+    {ty:"check",l:"Folgekosten/Stellenplanwirkung überschlägig betrachtet (→ Bereich 3/4)"},
+    {ty:"choice",id:"gr15",l:"Tragweite:",opts:["Überschaubar – Stellungnahme reicht","Größer – eigene Untersuchung empfehlen (AV 1.3)"]}]},
+  {t:"3. Stellungnahme formulieren",
+   info:"Ergebnis muss klar sein – begründet anhand der Maßstäbe, mit Liste der erforderlichen Folgeänderungen.",
+   items:[
+    {ty:"choice",l:"Ergebnis:",opts:["Zustimmung","Zustimmung mit Auflagen","Ablehnung mit Alternativvorschlag"]},
+    {ty:"text",l:"Begründung (Kurzfassung)",long:true},
+    {ty:"check",l:"Erforderliche Folgeänderungen aufgelistet (Organigramm, GVP, Stellenbeschreibungen, Stellenplan)"}]},
+  {t:"4. Rückkopplung und Nachverfolgung",
+   info:"Nachhalten, ob die organisatorischen Folgeänderungen tatsächlich vollzogen werden – Wiedervorlage!",
+   items:[
+    {ty:"check",l:"Stellungnahme an initiierenden Bereich und Büroleiter/OB versandt"},
+    {ty:"check",l:"Bei ADGA-Relevanz: Entscheidungsweg über Ziff. 48.3 beachtet"},
+    {ty:"check",l:"Wiedervorlage zur Umsetzungskontrolle gesetzt; bei Vollzug AV 1.1/1.4 ausgelöst"}]}],
+ ergebnis:"Dokumentierte organisatorische Stellungnahme; gesicherte Konsistenz der Organisationsdokumente.",
+ qualitaet:["Alle Prüffelder (Struktur, Spannen, Zeichnung, Kosten) abgedeckt","Ergebnis eindeutig und begründet","Folgeänderungen benannt und nachgehalten"]},
+
+av16:{id:"av16",b:"b1",nr:"AV 1.6",titel:"Pflege organisatorischer Regelungen (laufende Aufgaben)",
+ ziel:"Laufende Einzelaufgaben der Organisation nach ADGA: Dienstanweisungen, Auslegungsentscheidungen, Zeichnungsbefugnisse, Dienstsiegel, neue Arbeitsformen.",
+ ausloeser:["Änderungsbedarf an ADGA/Dienstanweisungen","Zweifelsfrage zur ADGA-Auslegung (Ziff. 2.3)","Antrag auf Zeichnungsbefugnis (Ziff. 48.9)","Dienstsiegel-Angelegenheit (Ziff. 50.2)","Ausnahme Aushänge/Verkaufswerbung (Ziff. 56/57)","Neue Arbeitsformen (mobile Arbeit, Telearbeit)"],
+ grundlagen:["ADGA Ziff. 2, 48, 50, 56/57","Grundsätze RH (Anlage: Kernaufgaben der Organisation)"],
+ beteiligte:["Büroleiter","OB","Stabsstelle Recht","Personalrat","Betroffene Fachbereiche"],
+ steps:[
+  {t:"1. Teilaufgabe bestimmen",
+   info:"Dieser AV bündelt fünf wiederkehrende Regelungs-Teilaufgaben – wähle die passende, die weiteren Schritte zeigen die jeweilige Checkliste.",
+   items:[
+    {ty:"choice",id:"ta16",l:"Welche Teilaufgabe liegt an?",
+     opts:["ADGA/Dienstanweisung fortschreiben","Auslegungsentscheidung treffen","Zeichnungsbefugnis ausstellen","Dienstsiegel verwalten","Neue Arbeitsform regeln"]}]},
+  {t:"2. Bearbeitung nach Teilaufgabe",
+   info:"Regelungsentwürfe: kurz, verständlich, widerspruchsfrei zu Tarif-/Beamtenrecht (ADGA Ziff. 2.4).",
+   items:[
+    {ty:"check",l:"Änderungsbedarf gesammelt, Regelungsentwurf erstellt",showIf:{id:"ta16",eq:"ADGA/Dienstanweisung fortschreiben"}},
+    {ty:"check",l:"Beteiligung Betroffener und Personalrat durchgeführt",showIf:{id:"ta16",eq:"ADGA/Dienstanweisung fortschreiben"}},
+    {ty:"check",l:"OB-Unterschrift (Ziff. 48.3), Verkündung (Aushändigung/Intranet, Ziff. 2.2), alte Fassung archiviert",showIf:{id:"ta16",eq:"ADGA/Dienstanweisung fortschreiben"}},
+    {ty:"check",l:"Anfrage dokumentiert, Regelung ausgelegt (ggf. mit Stabsstelle Recht)",showIf:{id:"ta16",eq:"Auslegungsentscheidung treffen"}},
+    {ty:"check",l:"Entscheidung schriftlich, als Präzedenzfall abgelegt",showIf:{id:"ta16",eq:"Auslegungsentscheidung treffen"}},
+    {ty:"check",l:"Antrag geprüft (Erforderlichkeit, Wertgrenzen Ziff. 48.7)",showIf:{id:"ta16",eq:"Zeichnungsbefugnis ausstellen"}},
+    {ty:"check",l:"Befugnis ausgestellt, Verzeichnis geführt, Einzug bei Personalwechsel vorgemerkt",showIf:{id:"ta16",eq:"Zeichnungsbefugnis ausstellen"}},
+    {ty:"check",l:"Verzeichnis (fortlaufende Nummern) aktuell; Beschaffung/Ausgabe gegen Empfangsbestätigung",showIf:{id:"ta16",eq:"Dienstsiegel verwalten"}},
+    {ty:"check",l:"Verlustmeldung/Rücknahme nach Ziff. 50 bearbeitet",showIf:{id:"ta16",eq:"Dienstsiegel verwalten"}},
+    {ty:"check",l:"Bedarf geprüft, Dienstvereinbarung mitgestaltet",showIf:{id:"ta16",eq:"Neue Arbeitsform regeln"}},
+    {ty:"check",l:"Organisatorische Folgen geregelt (Erreichbarkeit Ziff. 24, Arbeitsplatznutzung)",showIf:{id:"ta16",eq:"Neue Arbeitsform regeln"}}]},
+  {t:"3. Dokumentation und Verzeichnispflege",
+   info:"Alle Regelungen und Verzeichnisse (Zeichnungsbefugnisse, Dienstsiegel, Präzedenzfälle) zentral und aktuell führen.",
+   items:[
+    {ty:"check",l:"Vorgang vollständig dokumentiert (Aktenmäßigkeit)"},
+    {ty:"check",l:"Verzeichnis(se) aktualisiert"},
+    {ty:"text",l:"Kurzvermerk zum Ergebnis",long:true}]}],
+ ergebnis:"Aktuelle, rechtssichere innerdienstliche Regelungen; geführte Verzeichnisse.",
+ qualitaet:["Regelung kurz, verständlich, widerspruchsfrei zu höherrangigem Recht","Beteiligungen (PR, Recht) dokumentiert","Verkündung und Archivierung erfolgt"]},
+
+av21:{id:"av21",b:"b2",nr:"AV 2.1",titel:"Prozesslandkarte aufbauen und Prozesse auswählen",
+ ziel:"Überblick über alle Prozesse (Führungs-/Kern-/Unterstützungsprozesse) und transparente, gemeinsam getragene Priorisierung, welche Prozesse zuerst untersucht werden.",
+ ausloeser:["Einführung/Ausbau des Prozessmanagements","Jährliche Priorisierungsrunde","Anstehende Digitalisierungsvorhaben (OZG/E-Government)","Aufforderung der Leitung"],
+ grundlagen:["BMI-Leitfaden Prozesslandkarte","BMI-Leitfaden Auswahl","Grundsätze RH Ziff. 7.1 (Prozessüberblick Pflicht)","FIM-Portal (Referenzprozesse)"],
+ beteiligte:["FB-Leitungen (Workshops)","Büroleiter/OB (Freigabe)","Fachbereiche (Datenlieferung)"],
+ steps:[
+  {t:"1. Ziele und Darstellungsform festlegen",
+   info:"Pragmatisch bleiben: eine Seite, Ebenen Landkarte → Hauptprozesse → Teilprozesse. PowerPoint/Visio genügt, wenn keine Modellierungssoftware da ist.",
+   items:[
+    {ty:"choice",l:"Hauptzweck der Landkarte:",multi:true,opts:["Interner Überblick","Außendarstellung","Abgrenzung der Prozesse","Basis für Auswahl/Optimierung"]},
+    {ty:"check",l:"Darstellungskonvention festgelegt (Ebenen, Werkzeug)"}]},
+  {t:"2. Erhebungsweg festlegen",
+   info:"BMI-Empfehlung: Top-down mit grobem Entwurf starten, dann schrittweise verfeinern. Grundsatzdiskussionen über Kern- vs. Unterstützungsprozess vermeiden.",
+   items:[
+    {ty:"choice",l:"Erhebungsweg:",opts:["Top-down (Workshops mit FB-Leitungen) – empfohlen","Bottom-up (Erhebung bei Sachbearbeitung)","Kombination"],
+     help:"Top-down: schneller, strategisch – Akzeptanz der Beschäftigten aktiv sichern. Bottom-up: höhere Akzeptanz, aufwendiger."}]},
+  {t:"3. Prozesse identifizieren und einordnen",
+   info:"Faustformeln: Externe Kunden → Kernprozess; Zentralaufgaben → Unterstützung; Frage: Hätte der Prozess allein Existenzberechtigung? → Kern.",
+   items:[
+    {ty:"check",l:"Quellen ausgewertet: GVP, Organigramm, Produkt-/Leistungskatalog, Aufgabenkatalog, QM-Unterlagen"},
+    {ty:"check",l:"Dreiteilung vorgenommen: Führungs- / Kern- / Unterstützungsprozesse"},
+    {ty:"check",l:"Je Prozess dokumentiert: Input – Inhalt – Output, Schnittstellen, beteiligte Einheiten"},
+    {ty:"check",l:"FIM-Portal auf vorhandene Referenzprozesse geprüft",help:"fimportal.de – Übernahme spart eigene Erhebung"}]},
+  {t:"4. Auswahlkriterien sammeln und gewichten (Workshop 1)",
+   info:"Max. 15 Kriterien brainstormen, im Workshop per Mehr-Punkt-Abfrage auf ca. 6 reduzieren und Gewichte berechnen.",
+   items:[
+    {ty:"choice",l:"Typische Kriterien (Auswahl für die Liste):",multi:true,
+     opts:["Ressourcenbindung (Personal/Kosten)","Fallzahl","Politisch-strategische Bedeutung","Vermutete Schwachstellen/Beschwerden","Schnittstellen-/Medienbrüche","Bürger-/Kundenrelevanz","Digitalisierungspotenzial","Prüfungsfeststellungen"]},
+    {ty:"check",l:"Ausschlusskriterien angewandt",help:"Gesetzlich fixierter Ablauf, anstehende Rechts-/IT-Änderung, geringes Volumen, bereits analysiert, bald wegfallend"},
+    {ty:"check",l:"Workshop 1 durchgeführt: ~6 Kriterien + Gewichte beschlossen"}]},
+  {t:"5. Prozesse bewerten und priorisieren (Workshop 2)",
+   info:"Nutzwertanalyse-Logik: qualitative Kriterien per Punktabfrage (begrenzte Punkte je Person, max. 2 je Prozess), quantitative vorab aus Daten. Gemeinsame Erarbeitung = Akzeptanz.",
+   items:[
+    {ty:"check",l:"Bewertung im Workshop durchgeführt (Normierung, gewichtete Summe)"},
+    {ty:"text",l:"Top-Prozesse der Rangfolge",ph:"1. …  2. …  3. …",long:true}]},
+  {t:"6. Freigabe und Pflege",
+   info:"Landkarte und Priorisierung sind lebende Dokumente – Jahresturnus für Aktualisierung festlegen.",
+   items:[
+    {ty:"check",l:"Priorisierungsliste + Landkarte mit Büroleiter/OB abgestimmt und freigegeben"},
+    {ty:"check",l:"Im Intranet veröffentlicht"},
+    {ty:"check",l:"Jahresturnus für Aktualisierung/Neupriorisierung gesetzt"}]}],
+ ergebnis:"Aktuelle Prozesslandkarte (Führungs-/Kern-/Unterstützungsprozesse) + freigegebene, begründete Priorisierungsliste.",
+ qualitaet:["Landkarte vollständig, aber abstrakt genug für eine Seite","Auswahlverfahren transparent dokumentiert (Kriterien, Gewichte, Punkte)","Wirtschaftlichkeit beachtet (Nutzen je Untersuchungsaufwand)"]},
+
+av22:{id:"av22",b:"b2",nr:"AV 2.2",titel:"Ist-Aufnahme und Modellierung eines Geschäftsprozesses",
+ ziel:"Validiertes Ist-Prozessmodell inkl. Zeiten, Mengen, Schnittstellen und erster Schwachstellenliste – Grundlage für Optimierung (AV 2.3) und PBE (AV 3.2).",
+ ausloeser:["Prozess aus der Priorisierung (AV 2.1)","Akutes Problem/Beschwerde","Gesetzes- oder Verfahrensänderung","Vorarbeit für PBE (AV 3.2) oder WU (Bereich 4)"],
+ grundlagen:["BMI-Leitfaden Erhebung (Modellierungsinterviews)","Orghandbuch Kap. 6.2.4 (Prozessmodelle)"],
+ beteiligte:["Prozessexperten + Führungskraft des Fachbereichs","ggf. IT (Systemfragen)"],
+ steps:[
+  {t:"1. Prozess abgrenzen",
+   info:"Ohne klare Grenzen (Start-/Endereignis) franst jede Aufnahme aus. Ziel der Aufnahme bestimmt die Erhebungstiefe – nicht überdetaillieren!",
+   items:[
+    {ty:"text",l:"Prozessname"},
+    {ty:"text",l:"Auslöser (Startereignis) → Ergebnis (Endereignis/Produkt)",long:true},
+    {ty:"choice",l:"Zweck der Aufnahme:",opts:["Optimierung","Dokumentation","Zeitbasis für PBE"],
+     help:"Bestimmt die nötige Detailtiefe"},
+    {ty:"check",l:"Beteiligte Rollen/Einheiten und Schnittstellen definiert; Einordnung in die Landkarte geprüft"}]},
+  {t:"2. Interviews planen",
+   info:"Faustwerte BMI: ca. 2 h je Interview (erstes länger), max. 2 Interviews/Tag, ≥ 2 h Nachbereitung je Termin.",
+   items:[
+    {ty:"check",l:"1–2 Prozessexperten mit der Führungskraft benannt; Abstimmperson für das finale Modell geklärt"},
+    {ty:"choice",l:"Vorbereitungsvariante:",opts:["Vormodellierung (zeigt Vorbereitung, gibt Rahmen)","Leere Tapete (Metaplan – unvoreingenommen, zeitintensiver)"]},
+    {ty:"check",l:"Vorhandene Doku gesichtet; Symbol-Legende und Kurzinfo für Interviewpartner vorbereitet"}]},
+  {t:"3. Modellierungsinterviews durchführen",
+   info:"Einstieg: Ziel erläutern, Sorgen nehmen (Optimierung ≠ Stellenabbau-Automatik; Betroffene zu Beteiligten). Teilergebnisse zusammenfassen und bestätigen lassen.",
+   items:[
+    {ty:"check",l:"Ablauf Schritt für Schritt erfragt",help:"Tätigkeiten, Reihenfolge, Entscheidungen/Verzweigungen, Zuständigkeiten, IT/Formulare, Ein-/Ausgangsdokumente"},
+    {ty:"check",l:"Zeiten laufend erfasst (Bearbeitungs-, Liege-, Transportzeiten)"},
+    {ty:"check",l:"Mengen (Fallzahlen) und Sonderfälle mit Häufigkeit erfasst"},
+    {ty:"check",l:"Schwachstellen/Ideen sofort in zentraler Liste gesammelt – noch NICHT bewertet"}]},
+  {t:"4. Modellieren und validieren",
+   info:"Nach SRH-Muster zählbar machen: Anzahl Tätigkeiten und Bearbeiterwechsel ausweisen – das macht Verbesserungen später messbar.",
+   items:[
+    {ty:"check",l:"Prozess als Swimlane-/BPMN-Diagramm oder Arbeitsablauftabelle dokumentiert",help:"Rollen je Bahn; Tätigkeitsarten klassifiziert (Bearbeitung/Prüfung/Weiterleitung)"},
+    {ty:"check",l:"Attribute hinterlegt: Zeiten, Mengen, IT-Systeme, Rechtsgrundlagen, Schnittstellen"},
+    {ty:"check",l:"Modell von Prozessexperten korrigiert und final abgenommen (Abnahme dokumentiert)"},
+    {ty:"num",l:"Anzahl Tätigkeiten (Ist)"},
+    {ty:"num",l:"Anzahl Bearbeiterwechsel (Ist)"}]},
+  {t:"5. Ablage und Übergabe",
+   info:"Ins Prozessregister – und sauber übergeben an AV 2.3 (Analyse) bzw. AV 3.2 (Zeit-/Mengengerüst für PBE).",
+   items:[
+    {ty:"check",l:"Ist-Modell + Antworten + Schwachstellenliste + Zeiten/Mengen zentral abgelegt"},
+    {ty:"choice",l:"Übergabe an:",opts:["AV 2.3 (Schwachstellenanalyse)","AV 3.2 (PBE-Datenbasis)","Beides"]}]}],
+ ergebnis:"Validiertes, abgenommenes Ist-Prozessmodell inkl. Zeiten, Mengen, Schnittstellen und erster Schwachstellenliste.",
+ qualitaet:["Prozessgrenzen eindeutig","Alle Hierarchieebenen einbezogen","Modell vom Fachbereich bestätigt","Erhebungstiefe dem Zweck angemessen"]},
+
+av23:{id:"av23",b:"b2",nr:"AV 2.3",titel:"Schwachstellenanalyse und Soll-Konzeption",
+ ziel:"Aus dem Ist-Modell ein bewertetes Soll-Konzept mit entscheidungsreifem Maßnahmenkatalog machen – jede Empfehlung nachvollziehbar aus einer Schwachstelle abgeleitet.",
+ ausloeser:["Abgeschlossene Ist-Aufnahme (AV 2.2)"],
+ grundlagen:["BMI-Leitfaden Dokumentation und Analyse","Orghandbuch Schwachstellen-Checkliste (Tab. 10)","KGSt 13/2025 (Benchmarks)"],
+ beteiligte:["Fachbereich (Prozessbeteiligte + Leitung)","SG 1.1.5 IT","Büroleiter/OB","ggf. Kämmerei (→ Bereich 4)"],
+ steps:[
+  {t:"1. Zeitenanalyse",
+   info:"Klassisches Optimierungsfeld: ungünstiges Verhältnis von Bearbeitungszeit zu Liege-/Transportzeiten.",
+   items:[
+    {ty:"num",l:"Durchlaufzeit gesamt (Tage)",help:"= Bearbeitungs- + Rüst- + Transport- + Liegezeiten"},
+    {ty:"num",l:"davon reine Bearbeitungszeit (Tage)"},
+    {ty:"check",l:"Auslastungsgrad je Rolle und Durchsatz (Fälle je Zeiteinheit) betrachtet"}]},
+  {t:"2. Schwachstellen systematisch identifizieren",
+   info:"Drei Wege kombinieren: gesammelte Vorschläge aus der Erhebung + Optimierungs-Workshops + detaillierte Eigenanalyse mit Prüffragen.",
+   items:[
+    {ty:"check",l:"Vorschlagsliste aus AV 2.2 ausgewertet"},
+    {ty:"check",l:"Optimierungs-Workshop mit Prozessbeteiligten durchgeführt",help:"Kleingruppen statt großer Runden; Ergebnisse rückkoppeln"},
+    {ty:"choice",l:"Treffer bei den Prüffragen:",multi:true,
+     opts:["Medienbrüche","Redundante Datenerfassung","Zu viele Schnittstellen/Bearbeiterwechsel","Lange Liege-/Transportzeiten","Unklare Zuständigkeiten","Nicht laufbahngerechte Wahrnehmung","Qualität/Fehlerquote","Umständliche Entscheidungswege"]},
+    {ty:"check",l:"Auch die Aufbauorganisation hinterfragt (Bündelung, Zuständigkeiten, Leitungsspanne → AV 1.2/1.3)"}]},
+  {t:"3. Benchmarking / Best-Practice-Vergleich",
+   info:"Voraussetzung: Vergleichbarkeit der Aufgaben. Kennzahlen mit Bedacht übertragen.",
+   items:[
+    {ty:"check",l:"Intern verglichen (gleichartige Prozesse anderer Sachgebiete)"},
+    {ty:"check",l:"Extern verglichen (Nachbarkommunen, KGSt-Vergleichsarbeit, FIM-/Landes-Musterprozesse)"}]},
+  {t:"4. Optimierungsoptionen entwickeln",
+   info:"BMI-Lösungskatalog systematisch durchgehen – je Schwachstelle mindestens ein Lösungsvorschlag; Machbarkeit mit Fachbereich/IT rückkoppeln.",
+   items:[
+    {ty:"choice",l:"Angewandte Lösungsansätze:",multi:true,
+     opts:["Schritte weglassen","Reihenfolge ändern","Bündeln/parallelisieren","Automatisieren/digitalisieren (Workflow, E-Akte, Online-Antrag)","Standardisieren (Vorlagen, Checklisten, Textbausteine)","Schnittstellen/Medienbrüche reduzieren","Liege-/Transportzeiten minimieren","Zuständigkeiten/Struktur anpassen","Fehlende Pflichtschritte ergänzen (Rechtskonformität!)"]},
+    {ty:"check",l:"Pro/Contra je Option dokumentiert; Machbarkeit rückgekoppelt"}]},
+  {t:"5. Soll-Prozess modellieren und bewerten",
+   info:"Verbesserung messbar machen: Tätigkeiten, Bearbeiterwechsel, Durchlaufzeit Ist vs. Soll gegenüberstellen. Bei wesentlichen Investitionen → WU nach Bereich 4.",
+   items:[
+    {ty:"check",l:"Soll-Modell gezeichnet (gleiche Notation wie Ist)"},
+    {ty:"num",l:"Anzahl Tätigkeiten (Soll)"},
+    {ty:"num",l:"Anzahl Bearbeiterwechsel (Soll)"},
+    {ty:"num",l:"Durchlaufzeit (Soll, Tage)"},
+    {ty:"choice",id:"wu23",l:"Wesentliche Investition nötig (Software, Umbau, Fremdvergabe)?",opts:["Nein","Ja → Wirtschaftlichkeitsuntersuchung Bereich 4"]}]},
+  {t:"6. Maßnahmenempfehlung abstimmen",
+   info:"Verworfene Vorschläge mit Begründung an den Fachbereich zurückmelden – das sichert Akzeptanz.",
+   items:[
+    {ty:"check",l:"Maßnahmenkatalog erstellt",help:"Je Maßnahme: Beschreibung, Handlungsfeld, Zuständigkeit, Frist, Aktivitäten; Umsetzungshorizont kurz-/mittel-/langfristig"},
+    {ty:"check",l:"Mit Fachbereich vorabgestimmt, Entscheidungsvorlage an Büroleiter/OB"},
+    {ty:"check",l:"Verworfene Vorschläge begründet zurückgemeldet"}]}],
+ ergebnis:"Bewertetes Soll-Konzept mit Soll-Prozessmodell und entscheidungsreifem Maßnahmenkatalog.",
+ qualitaet:["Analyse deckt Zeiten, Schwachstellen und Aufbaufragen ab","Jede Empfehlung aus einer Schwachstelle abgeleitet","Quantifizierung Ist vs. Soll","Wirtschaftlichkeit größerer Maßnahmen geprüft"]},
+
+av24:{id:"av24",b:"b2",nr:"AV 2.4",titel:"Umsetzungsbegleitung, Standardisierung, Dokumentation",
+ ziel:"Aus dem beschlossenen Soll-Konzept einen gelebten, verbindlich dokumentierten Standard machen – mit Veränderungsmanagement und sauberer Übergabe an den Fachbereich.",
+ ausloeser:["Freigegebenes Soll-Konzept (AV 2.3)"],
+ grundlagen:["Kurzleitfaden GPM (BMI)","Handbuch Prozessmanagement Sachsen","ADGA Ziff. 34 ff. (Geschäftsgang)"],
+ beteiligte:["Fachbereich","SG IT","SG Personal (Schulung)","Personalrat (bei Verhaltens-/Arbeitsplatzbezug)","Büroleiter/OB"],
+ steps:[
+  {t:"1. Umsetzung organisieren",
+   info:"Jede Maßnahme braucht: Wer? Womit? Bis wann? – plus Meilensteine. Umsetzungsentscheidung der Leitung dokumentieren.",
+   items:[
+    {ty:"check",l:"Umsetzungsentscheidung eingeholt und dokumentiert",help:"Wer entscheidet was: Behördenleitung, Lenkungsausschuss, Prozesseigentümer"},
+    {ty:"check",l:"Maßnahmenplan finalisiert (Verantwortliche, Ressourcen, Termine, Meilensteine)"}]},
+  {t:"2. Veränderungsmanagement",
+   info:"Einwände ernst nehmen und dokumentiert beantworten; Führungskräfte als Promotoren gewinnen.",
+   items:[
+    {ty:"check",l:"Beschäftigte frühzeitig informiert (Was ändert sich, warum, ab wann)"},
+    {ty:"check",l:"Schulungs-/Einarbeitungsbedarf gedeckt"},
+    {ty:"check",l:"Einwände dokumentiert beantwortet"}]},
+  {t:"3. Standard dokumentieren",
+   info:"Der Soll-Prozess wird als Verfahrensanweisung/Prozesssteckbrief verbindlich: Zweck, Geltungsbereich, Ablaufmodell, Rollen, Vorschriften, Formulare, IT, Änderungsdienst.",
+   items:[
+    {ty:"check",l:"Verfahrensanweisung/Prozesssteckbrief erstellt"},
+    {ty:"check",l:"Vorlagen/Checklisten/Textbausteine zentral bereitgestellt (Intranet)"},
+    {ty:"choice",id:"reg24",l:"Regelungsanschluss:",multi:true,opts:["ADGA/Dienstanweisung anzupassen → AV 1.6","Geschäftsverteilung ändert sich → AV 1.1","Kein Anpassungsbedarf"]}]},
+  {t:"4. Inbetriebnahme und Übergabe",
+   info:"Kennzahlen-Baseline VOR der Umstellung sichern – ohne Ist-Werte keine Erfolgskontrolle (AV 2.5).",
+   items:[
+    {ty:"date",l:"Stichtag der Umstellung"},
+    {ty:"check",l:"Parallelbetrieb/Übergangsregeln geklärt; Alt-Doku archiviert"},
+    {ty:"check",l:"Prozessverantwortung formal an den Fachbereich übergeben (Person benannt); Restpunkteliste geführt"},
+    {ty:"check",l:"Kennzahlen-Baseline gesichert (Ist-Werte vor Umstellung)"}]}],
+ ergebnis:"Umgesetzter, geschulter, verbindlich dokumentierter Soll-Prozess mit benannter Prozessverantwortung.",
+ qualitaet:["Jede Maßnahme hat Verantwortliche und Termin","Dokumentation auffindbar und aktuell","Regelwerk (ADGA/DA/GVP) konsistent nachgezogen","Baseline für Erfolgskontrolle gesichert"]},
+
+av25:{id:"av25",b:"b2",nr:"AV 2.5",titel:"Prozesscontrolling / kontinuierliche Verbesserung",
+ ziel:"Wirksamkeit umgesetzter Prozesse messen (gegen vorab definierte Ziele) und Nachsteuerung anstoßen. Motto: Was man nicht messen kann, kann man nicht steuern.",
+ ausloeser:["Regelturnus nach Umsetzung (erst nach Konsolidierungsphase!)","Auffälligkeiten (Beschwerden, Rückstände, Fehler)","Jährliche Aktualitätsprüfung","Rechts-/IT-Änderungen"],
+ grundlagen:["Kurzleitfaden GPM (Steuerung/Überwachung)","Baseline aus AV 2.4","ADGA Ziff. 18 (Vorschlagswesen)"],
+ beteiligte:["Prozessverantwortliche der Fachbereiche","FB-Leitungen (Prozesseigentümer)","Büroleiter/OB (Bericht)"],
+ steps:[
+  {t:"1. Kennzahlen erheben",
+   info:"Aufwand der Messung im Verhältnis halten. Datenquellen: Fachverfahren, E-Akte, Statistiken.",
+   items:[
+    {ty:"choice",l:"Gemessene Größen:",multi:true,opts:["Durchlaufzeit","Fallzahlen/Durchsatz","Fehlerquote/Rückläufer","Anzahl Prozessschritte/Beteiligte","Nachfragen/strittige Fälle","Zufriedenheit"]},
+    {ty:"check",l:"Konsolidierungsphase abgewartet (Routine eingekehrt → Daten aussagekräftig)"}]},
+  {t:"2. Soll-Ist-Abgleich und Bewertung",
+   info:"Vergleich gegen Baseline (AV 2.4) und gegen die Ziele aus dem Soll-Konzept.",
+   items:[
+    {ty:"range",l:"Zielerreichungsgrad (Einschätzung)",min:0,max:100,step:5,unit:" %",def:50},
+    {ty:"choice",l:"Hauptursache bei Abweichung:",opts:["Prozess selbst","Ausnahmefälle","Schulungsdefizit","IT","Mengenentwicklung","Keine wesentliche Abweichung"]}]},
+  {t:"3. Nachsteuerung",
+   info:"Bei grundlegendem Änderungsbedarf neu priorisieren (AV 2.1) statt endlos nachzubessern.",
+   items:[
+    {ty:"choice",l:"Maßnahme:",multi:true,opts:["Nachschulung","Modell-/Standardanpassung","Erneute Optimierungsschleife (→ AV 2.3)","Zielanpassung","Neupriorisierung (→ AV 2.1)","Keine"]}]},
+  {t:"4. Kontinuierliche Verbesserung verankern",
+   info:"Prozessverantwortliche bestätigen jährlich die Aktualität; Verbesserungsvorschläge der Beschäftigten einsammeln (ADGA Ziff. 18).",
+   items:[
+    {ty:"check",l:"Aktualitätsbestätigung der Prozessverantwortlichen eingeholt"},
+    {ty:"check",l:"Ergebnisse an Leitung berichtet; Erkenntnisse in Prozessregister und Priorisierung eingespeist"},
+    {ty:"check",l:"Lessons Learned dokumentiert"}]}],
+ ergebnis:"Wirksamkeitsnachweis je Prozess (Kennzahlenbericht) + angestoßene Folgemaßnahmen.",
+ qualitaet:["Messung gegen vorab definierte Ziele","Evaluation erst nach Konsolidierung","Berichtsweg zur Leitung etabliert","Lessons Learned dokumentiert"]},
+
+av31:{id:"av31",b:"b3",nr:"AV 3.1",titel:"PBE: Auftragsklärung und Planung",
+ ziel:"Freigegebenes, dokumentiertes Untersuchungsdesign für eine Personalbedarfsermittlung – mit begründeter Methodenwahl je Aufgabe und geklärter Beteiligung.",
+ ausloeser:["Stellenmehrungsantrag eines Fachbereichs","Haushaltsvorgabe/Konsolidierung","Aufgabenzuwachs/-wegfall oder Digitalisierung","Reorganisation (AV 1.3)","Bearbeitungsrückstände","Fortschreibungsturnus","GPA-/RH-Feststellung"],
+ grundlagen:["BVA-Leitfaden PBE 2021 (Phasen 1–2)","Leitsätze RH 2024","SRH-Erhebungsbögen"],
+ beteiligte:["Fachbereich (Leitung + Beschäftigte)","SG Personal","Personalrat","Büroleiter/OB"],
+ steps:[
+  {t:"1. Anlass und Ziele klären",
+   info:"Vorrangprüfung nicht vergessen: Aufgabenkritik → Prozessoptimierung → PBE. Nie Personal auf einen ungeprüften Ist-Zustand bemessen!",
+   warn:"Sind Aufgabenkritik und Prozessoptimierung noch nicht erfolgt → zuerst Bereich 2 bzw. AV 1.3 einplanen.",
+   items:[
+    {ty:"choice",l:"Einordnung:",opts:["Erstmalige Datenbasis","Fortschreibung","Neue/weggefallene Aufgaben","Digitalisierungseffekt","Prognose","Bestätigung/Anmeldung von Stellenbedarf"]},
+    {ty:"choice",id:"vr31",l:"Vorrangprüfung: Aufgabenkritik + Prozessoptimierung erfolgt?",opts:["Ja","Nein → zuerst Bereich 2 / AV 1.3"]},
+    {ty:"check",l:"Wirtschaftlichkeit der Untersuchung selbst geprüft (Aufwand vs. Erkenntniswert)"},
+    {ty:"check",l:"Fortschreibungskriterien von Anfang an definiert; fortlaufende Dokumentation aufgesetzt"}]},
+  {t:"2. Projekt und Beteiligung organisieren",
+   info:"Erhebungen am Arbeitsplatz → Personalrat FRÜH informieren. Beschäftigte vor Beginn über Ziel, Verfahren, Methode informieren (SRH-Praxis: Informationsgespräch).",
+   items:[
+    {ty:"check",l:"Projektstruktur geklärt (wer erhebt, Entscheidungsweg, Rolle des Fachbereichs)"},
+    {ty:"check",l:"Projektrisiken benannt (Widerstände, Belastungsspitzen, Datenlücken) + Gegenmaßnahmen"},
+    {ty:"check",l:"Personalrat frühzeitig informiert"},
+    {ty:"check",l:"Datenschutz geklärt: anonymisierte Auswertung, keine Leistungskontrolle; Info-Gespräch mit Beschäftigten geplant"}]},
+  {t:"3. Untersuchungsbereich abgrenzen, Erhebungsbasis aufbauen",
+   info:"Der Aufgabenkatalog ist das Fundament: vollständig, überschneidungsfrei, handhabbar – vorab testen! Je Aufgabe Messgröße/Mengentreiber festlegen.",
+   items:[
+    {ty:"text",l:"Untersuchungsbereich (Einheiten; Daueraufgaben vs. Projektaufgaben)",long:true},
+    {ty:"check",l:"Aufgabenkatalog erstellt/aktualisiert (Anschluss an Aufgabengliederung bzw. SRH-Hauptgruppen 0–8)"},
+    {ty:"check",l:"Aufgabenarten markiert: quantifizierbar / dispositiv-kreativ / neu",help:"Daraus folgt die Methode!"},
+    {ty:"check",l:"JAZ der Normalarbeitskraft berechnet (nach Laufbahngruppen differenziert)",help:"Soll-Arbeitszeit × Nettoarbeitstage (RLP-Feiertage, Urlaub, eigene Krankenstatistik)"},
+    {ty:"check",l:"Aufgaben priorisiert (ABC nach Personalbindung); Mengen-Prognose je Aufgabe notiert"}]},
+  {t:"4. Methodik festlegen",
+   info:"Je Aufgabe die passende Technik – Teilerhebung vor Vollerhebung; bei Zeitaufnahmen max. ~10 Katalogpositionen je Arbeitsplatz; Erhebungszeitraum repräsentativ (keine Urlaubs-/Spitzenzeiten).",
+   items:[
+    {ty:"choice",l:"Gewählte Erhebungstechniken:",multi:true,
+     opts:["Dokumentenanalyse + Interview (immer)","Selbstaufschreibung","Zeitaufnahme (Messung)","Multimomentaufnahme","Analytisches Schätzen (dispositiv-kreativ, ggf. PERT)","Arbeitsplatzsetzung (nur besetzungspflichtige Plätze)","Kennzahlen/Benchmark (nur Plausibilisierung)"]},
+    {ty:"text",l:"Erhebungszeitraum + Begründung der Repräsentativität"},
+    {ty:"choice",l:"Erhebungsumfang:",opts:["Teilerhebung (bevorzugt; Stichprobe begründen)","Vollerhebung (begründen!)"]},
+    {ty:"check",l:"Erhebungsinstrumente vorbereitet und GETESTET (Bögen nach SRH-Muster)"}]},
+  {t:"5. Design abstimmen und freigeben",
+   info:"Das Untersuchungsdesign ist die Referenz für alles Weitere – Freigabe dokumentieren.",
+   items:[
+    {ty:"check",l:"Design-Vorlage erstellt (Ziel, Bereich, Methoden, Zeitraum, Beteiligung, Datenschutz, Zeitplan)"},
+    {ty:"check",l:"Freigabe durch Büroleiter/OB; Information an Fachbereich und Personalrat"},
+    {ty:"date",l:"Freigabedatum"}]}],
+ ergebnis:"Freigegebenes, dokumentiertes Untersuchungsdesign mit getesteter Erhebungsbasis.",
+ qualitaet:["Methodenwahl je Aufgabe begründet","Zeitraum repräsentativ","Aufgabenkatalog überschneidungsfrei und handhabbar","Beteiligung und Datenschutz vorab geklärt"]},
+
+av32:{id:"av32",b:"b3",nr:"AV 3.2",titel:"PBE: Datenerhebung (Mengen und Zeiten)",
+ ziel:"Vollständiges, plausibilisiertes und dokumentiertes Mengen- und Zeitgerüst je Aufgabe – die Kernprüffrage der Rechnungshöfe ist die nachvollziehbare Plausibilisierung.",
+ ausloeser:["Freigegebenes Untersuchungsdesign (AV 3.1)"],
+ grundlagen:["BVA-Leitfaden (Sonderfälle)","Leitsätze RH 2024","SRH-Praxis (Mengenbestätigung durch FB-Leitung)"],
+ beteiligte:["Beschäftigte + Führungskräfte des Fachbereichs","SG Personal (Zeiterfassungs-/Ausfalldaten)"],
+ steps:[
+  {t:"1. Aufgaben-/Prozessbezug herstellen",
+   info:"Wo Prozesse bereits modelliert sind (AV 2.2): Arbeitsschritte und Zeiten übernehmen – Doppelerhebung vermeiden.",
+   items:[
+    {ty:"check",l:"Aufgabenkatalog mit den Beschäftigten durchgesprochen"},
+    {ty:"check",l:"Vorhandene Prozessmodelle genutzt (Zeiten/Schritte übernommen)"},
+    {ty:"check",l:"Zuordnung gesichert: jede erhobene Zeit gehört zu genau einer Katalogposition"}]},
+  {t:"2. Mengengerüst erheben",
+   info:"Primär aus Statistiken, Fachverfahren, Registern (elektronisch bevorzugt). Aussagelose Mengen lieber weglassen als scheingenau führen.",
+   items:[
+    {ty:"check",l:"Mengen aus Statistiken/Fachverfahren gezogen"},
+    {ty:"check",l:"Lücken durch Zählung/qualifizierte Schätzung im repräsentativen Zeitraum geschlossen, auf Jahreswerte hochgerechnet"},
+    {ty:"check",l:"FB-Leitung hat die Mengen geliefert/bestätigt; Quelle je Wert dokumentiert"}]},
+  {t:"3. Bearbeitungszeiten erheben",
+   info:"Selbstaufschreibung: Nettoleistungszeit ohne Ausfall-/Verteilzeiten erfassen lassen, wöchentlich einsammeln. Führungs-/Leitungsaufgaben gesondert bemessen.",
+   items:[
+    {ty:"check",l:"Erhebung nach gewählter Methode läuft (Bögen ausgegeben, Ausfüllhinweise erteilt)"},
+    {ty:"check",l:"Führungs- und Leitungsaufgaben gesondert bemessen (Orghandbuch-Katalog; → AV 1.2)"},
+    {ty:"check",l:"Sonderfälle nach BVA-Leitfaden behandelt",help:"Vertretung, Beauftragte, Projektarbeit, mobile Arbeit, Rückstände, neue Aufgaben"}]},
+  {t:"4. Laufende Qualitätssicherung / Plausibilisierung",
+   info:"Jede Korrektur dokumentieren (wer, was, warum) und VOR Änderungen mit dem Bereich sprechen (SRH-Praxis).",
+   warn:"KLR-Zeitbuchungen sind als Bearbeitungszeiten ungeeignet – sie verteilen nur, zeigen nicht die Erforderlichkeit.",
+   items:[
+    {ty:"check",l:"Zwischenauswertungen gefahren, fehlende Bereiche nachgefasst"},
+    {ty:"check",l:"Abgleich mit Anwesenheits-/Zeiterfassungsdaten"},
+    {ty:"check",l:"Zeit-je-Menge-Relationen und Aufgabenranking geprüft (Aufwandsverhältnis logisch?)"},
+    {ty:"check",l:"Ausreißer identifiziert, hinterfragt, begründet bereinigt"},
+    {ty:"check",l:"Vergleich mit Erfahrungs-/Benchmarkwerten (RH RLP, SRH, KGSt)"}]}],
+ ergebnis:"Vollständiges, plausibilisiertes und dokumentiertes Mengen- und Zeitgerüst je Aufgabe.",
+ qualitaet:["Daten repräsentativ und fortschreibungsfähig","Datenquellen lückenlos belegt","Anonymität gewahrt","Plausibilisierung nachvollziehbar dokumentiert"]},
+
+av33:{id:"av33",b:"b3",nr:"AV 3.3",titel:"PBE: Auswertung und Berechnung des Personalbedarfs",
+ ziel:"Berechneter, plausibilisierter Personalbedarf (VZÄ) im Ist und Soll – inkl. Szenarien und ausgewiesenem Optimierungspotenzial VOR jeder Stellenforderung.",
+ ausloeser:["Abgeschlossene Erhebung (AV 3.2)"],
+ grundlagen:["Leitsätze RH 2024 Ziff. 4 (Kernformel)","RH-RLP-Orientierungswerte 2016/2025","SRH-Modellwerte (2,32+0,08 VK je 1.000 EW)"],
+ beteiligte:["SG Personal (Stellenplan-Daten)","Fachbereich (Rückkopplung)","Büroleiter/OB (Soll-Entscheidung)"],
+ steps:[
+  {t:"1. Ist-Personalbedarf berechnen",
+   info:"Kernformel: VZÄ = (Jahresmenge × mittlere Bearbeitungszeit inkl. Verteilzeitzuschlag) ÷ Jahresarbeitszeit der Normalarbeitskraft. Der Rechner unten übernimmt die Formel – Ergebnis fließt ins Protokoll.",
+   items:[
+    {ty:"calc",kind:"pbe",l:"PBE-Rechner (je Aufgabe eine Zeile)"},
+    {ty:"check",l:"Aggregation nach Einheit, Laufbahngruppe, Aufgabenart erstellt; dispositiv-kreative und Führungsanteile gesondert ausgewiesen"},
+    {ty:"check",l:"Bereits entfallene Aufgaben/offensichtliche Optimierungen gekennzeichnet (nicht stillschweigend eingerechnet)"}]},
+  {t:"2. Plausibilisieren mit Vergleichswerten",
+   info:"Benchmarks nur unterstützend! Örtliche Mehr-/Minderbedarfe sauber herleiten; temporäre Bedarfe dürfen sich nicht verfestigen – Abbau terminieren. Keine Bagatell-Mehrbedarfe.",
+   items:[
+    {ty:"check",l:"Gegen RH-RLP-Orientierungswerte / SRH-Modellwerte / KGSt-Erfahrungswerte gestellt"},
+    {ty:"choice",l:"Abweichung vom Vergleichswert:",opts:["Im Rahmen","Mehrbedarf – örtlich begründet","Minderbedarf – örtlich begründet"]},
+    {ty:"text",l:"Begründung der Abweichung (dauerhaft vs. temporär)",long:true}]},
+  {t:"3. Soll-Ist-Abgleich",
+   info:"Ermittelten Bedarf dem tatsächlichen Personaleinsatz UND dem Stellenplan gegenüberstellen (VZÄ und Stellen).",
+   items:[
+    {ty:"num",l:"Ist-Personaleinsatz (VZÄ)"},
+    {ty:"num",l:"Stellenplan-Soll (Stellen/VZÄ)"},
+    {ty:"choice",l:"Befund:",opts:["Überdeckung","Deckung","Unterdeckung"]},
+    {ty:"check",l:"Ursachen zugeordnet (Menge, Zeit, Struktur, Qualität)"}]},
+  {t:"4. Optimierungspotenzial vor Stellenforderung",
+   info:"BVA-Phase HU Teil 2: Erst alle Alternativen prüfen, dann Szenarien für die Leitungsentscheidung aufbereiten.",
+   items:[
+    {ty:"choice",l:"Geprüfte Alternativen zum Mehrbedarf:",multi:true,
+     opts:["Digitalisierung","Prozessverbesserung (→ Bereich 2)","Aufgabenverlagerung zwischen Laufbahngruppen","Umverteilung","Servicezeiten-/Standardanpassung","Aufgabenwegfall (Zweckkritik)","Outsourcing (→ Bereich 4)"]},
+    {ty:"check",l:"Szenarien aufbereitet (Status quo / optimiert / reduzierter Standard) mit jeweiligem VZÄ-Bedarf"}]}],
+ ergebnis:"Berechneter, plausibilisierter Personalbedarf (VZÄ) im Ist und Soll, inkl. Szenarien und Optimierungspotenzial.",
+ qualitaet:["Rechenweg vollständig nachvollziehbar (Formel, JAZ-Herleitung, Zuschläge)","Benchmarks nie als alleinige Begründung","Mehrbedarf erst nach ausgeschöpfter Optimierung"]},
+
+av34:{id:"av34",b:"b3",nr:"AV 3.4",titel:"Stellenbemessungsbericht und Empfehlungen",
+ ziel:"Prüffester Stellenbemessungsbericht mit Entscheidungsvorlage – GPA-/RH-fest: alle Einstiegsfragen der Rechnungshöfe müssen beantwortbar sein.",
+ ausloeser:["Vorliegende Berechnung (AV 3.3)"],
+ grundlagen:["Orghandbuch/Leitsätze (Berichtsgliederung)","Anlage Leitsätze = Selbsttest","Kommunalbericht 2024 (RH RLP)"],
+ beteiligte:["SG Personal","Fachbereich","FB 1.2 Finanzen (Kosten)","Büroleiter/OB"],
+ steps:[
+  {t:"1. Bericht erstellen",
+   info:"Gliederung: Anlass/Auftrag/Ziele – Bereich – Vorgehen/Methoden mit Begründung – Datenbasis (Quellen, Zeiträume, Plausibilisierung, Ausreißer) – Berechnung – Ergebnisse – Vergleichswerte – Optimierungspotenziale – Empfehlungen – Managementfassung.",
+   items:[
+    {ty:"check",l:"Alle Gliederungspunkte abgedeckt"},
+    {ty:"check",l:"Fortschreibungshinweise aufgenommen",help:"Welche Daten künftig wie erhoben werden (Statistiken, Fachverfahren, Schlüsselzahlen)"}]},
+  {t:"2. Empfehlungen formulieren",
+   info:"Differenziert und umsetzungsorientiert – jede Empfehlung mit Wirkung (VZÄ, Kosten überschlägig) und Umsetzungsweg. Stellenreduzierung sozialverträglich über Fluktuation (SRH-Hinweis).",
+   items:[
+    {ty:"choice",l:"Empfehlungstypen:",multi:true,
+     opts:["Zusatzstellen (mit Wertigkeit → AV 3.5)","Umstrukturierung/Umverteilung","Stellenreduzierung (über Fluktuation)","Befristungen für temporäre Bedarfe","Prozess-/Digitalisierungsmaßnahmen mit Entlastungswirkung"]},
+    {ty:"text",l:"Kernempfehlung (Kurzfassung)",long:true}]},
+  {t:"3. Qualitätssicherung und Abstimmung",
+   info:"Selbsttest gegen die RH-Einstiegsfragen (Anlage der Leitsätze) VOR der Abgabe – das ist der Prüfmaßstab von GPA und Rechnungshof.",
+   items:[
+    {ty:"check",l:"Selbsttest gegen RH-Einstiegsfragen bestanden"},
+    {ty:"check",l:"Zahlen gegen Quelldaten verprobt"},
+    {ty:"check",l:"Entwurf mit Fachbereich (faktische Richtigkeit) und SG Personal (Umsetzbarkeit) abgestimmt; Einwände dokumentiert gewürdigt"}]},
+  {t:"4. Entscheidungsvorlage vorbereiten",
+   info:"Kernergebnis, Szenarien, Empfehlung, Haushaltswirkung – Übergabe an AV 3.6 (Stellenplan) und ggf. AV 3.5 (Bewertung).",
+   items:[
+    {ty:"check",l:"Vorlage für Büroleiter/OB bzw. Gremien erstellt"},
+    {ty:"check",l:"Übergaben angestoßen: AV 3.6 (Stellenplan), AV 3.5 (Bewertung neuer/geänderter Stellen)"},
+    {ty:"check",l:"Evaluation der Untersuchung selbst festgehalten (Lessons Learned)"}]}],
+ ergebnis:"Prüffester Stellenbemessungsbericht mit Entscheidungsvorlage.",
+ qualitaet:["GPA-/RH-fest (alle Einstiegsfragen beantwortbar)","Fortschreibungsfähig dokumentiert","Empfehlungen umsetzungsorientiert und priorisiert"]},
+
+av35:{id:"av35",b:"b3",nr:"AV 3.5",titel:"Stellenbewertung / Eingruppierungsvorbereitung",
+ ziel:"Nachvollziehbarer, KGSt-gestützter Bewertungsvorschlag als Grundlage für Eingruppierung (TVöD) bzw. Besoldungsfestsetzung (Beamte). Grundsatz: Die Bewertung folgt der Stellenbeschreibung – nie umgekehrt.",
+ ausloeser:["Neue oder wesentlich geänderte Stelle (aus AV 1.3/3.4)","Antrag von Beschäftigten/Führungskraft auf Überprüfung","Turnusprüfung","Vorbereitung einer Ausschreibung"],
+ grundlagen:["Aktuelle Stellenbeschreibung (AV 1.4)","KGSt-Musterbewertungen GK 6 (43 Bögen im Vault)","Referenz: KGSt SB Verwaltung/Organisation A 11 (ID 796)","TVöD §§ 12, 13","LBesG RLP"],
+ beteiligte:["SG Personal (federführend im Vollzug)","Führungskraft","Personalrat (Mitbestimmung)"],
+ steps:[
+  {t:"1. Bewertungsgrundlage sichern",
+   info:"Ohne bewertungsfähige Stellenbeschreibung keine Bewertung – Tätigkeiten müssen so konkret sein, dass Arbeitsvorgänge ableitbar sind. Sonst zuerst AV 1.4!",
+   items:[
+    {ty:"check",l:"Stellenbeschreibung aktuell, Zeitanteile vollständig, gegengezeichnet"},
+    {ty:"choice",id:"status35",l:"Statusweiche:",opts:["Beschäftigte (TVöD-Eingruppierung)","Beamte (Dienstpostenbewertung/Besoldung)"]}]},
+  {t:"2. Arbeitsvorgänge bilden (Beschäftigte)",
+   info:"Tätigkeiten zu Arbeitsvorgängen zusammenfassen: Bezug auf das Arbeitsergebnis, Zusammenhangstätigkeiten einbeziehen. Die Bildung zu großer Arbeitsvorgänge ist der häufigste Fehler (BAG-Rechtsprechung beachten!).",
+   items:[
+    {ty:"check",l:"Arbeitsvorgänge gebildet, Zeitanteile je AV bestimmt",showIf:{id:"status35",eq:"Beschäftigte (TVöD-Eingruppierung)"}},
+    {ty:"check",l:"Je Arbeitsvorgang tarifliche Tätigkeitsmerkmale geprüft",help:"Anforderungsstufen: gründliche/vielseitige Fachkenntnisse, selbstständige Leistungen, besondere Schwierigkeit und Bedeutung …",showIf:{id:"status35",eq:"Beschäftigte (TVöD-Eingruppierung)"}},
+    {ty:"check",l:"Gesamtbild nach Zeitanteilen hergeleitet",showIf:{id:"status35",eq:"Beschäftigte (TVöD-Eingruppierung)"}}]},
+  {t:"3. Analytische Vergleichsbewertung (KGSt-Wertzahlverfahren)",
+   info:"Sechs Merkmale je Stufe begründen, Punkte aus der KGSt-Tabelle, Summe → Dienstpostentabelle. Beispiel ID 796: Stufen 5/4/4/5/3/1 → 452 Punkte → A 11. Passenden Musterbogen der GK 6 als Anker wählen und Abweichungen je Merkmal begründen.",
+   items:[
+    {ty:"calc",kind:"wertzahl",l:"Wertzahl-Ermittlung"},
+    {ty:"text",l:"Gewählter KGSt-Referenzbogen + Kernabweichungen",ph:"z. B. ID 796; Abweichung bei Merkmal …",long:true}]},
+  {t:"4. Rahmen prüfen",
+   info:"Bewertung ohne Blick aufs Gefüge erzeugt Folgeanträge – Gleichbehandlung im Haus wahren.",
+   items:[
+    {ty:"check",l:"Stellenplan-Deckung geprüft (Wertigkeit vorhanden? → AV 3.6)"},
+    {ty:"check",l:"Besoldungs-/Eingruppierungsgefüge geprüft (Vergleichsstellen, Gleichbehandlung)"},
+    {ty:"check",l:"Obergrenzen/strukturelle Vorgaben geprüft"}]},
+  {t:"5. Abstimmen, dokumentieren, übergeben",
+   info:"Formale Eingruppierungs-/Ernennungszuständigkeit liegt beim SG Personal; Mitbestimmung des Personalrats beachten.",
+   items:[
+    {ty:"check",l:"Bewertungsvorschlag mit Begründung je Merkmal/Arbeitsvorgang schriftlich erstellt"},
+    {ty:"check",l:"Mit SG Personal abgestimmt"},
+    {ty:"check",l:"Ablage beim Bewertungsvorgang; Wiedervorlage bei künftigen Aufgabenänderungen gesetzt"}]}],
+ ergebnis:"Nachvollziehbarer, KGSt-gestützter Bewertungsvorschlag als Grundlage für Eingruppierung/Besoldungsfestsetzung.",
+ qualitaet:["Bewertung folgt der Stellenbeschreibung (nicht umgekehrt)","Jede Merkmalsstufe einzeln begründet","Vergleichsstellen benannt","Gleichbehandlung im Haus gewahrt"]},
+
+av36:{id:"av36",b:"b3",nr:"AV 3.6",titel:"Begleitung Stellenplan / Haushaltsverfahren",
+ ziel:"Organisatorisch begründeter, konsistenter Stellenplanbeitrag: Der Stellenplan darf nur ERFORDERLICHE Stellen ausweisen (§ 5 GemHVO) – ohne methodische PBE keine Stellenmehrung.",
+ ausloeser:["Jährliche Haushalts-/Stellenplanaufstellung","Unterjährige Stellenplanänderung","Umsetzung von Ergebnissen aus AV 3.4/3.5 bzw. AV 1.3"],
+ grundlagen:["§ 5 GemHVO RLP + GemHVO-VV","Berichte aus AV 3.4/3.5","FB 1.2 Finanzen (Haushalt)"],
+ beteiligte:["SG Personal (federführend Stellenplan)","FB 1.2 Finanzen/Kämmerei","Büroleiter/OB","Gremien"],
+ steps:[
+  {t:"1. Bedarfe zusammenführen",
+   info:"Je Veränderung (neu, Hebung, kw-Vermerk, Streichung, Umsetzung) die Begründung aus den Berichten beiziehen.",
+   items:[
+    {ty:"check",l:"PBE-/Bewertungsergebnisse und Organisationsentscheidungen des Jahres gesammelt"},
+    {ty:"check",l:"Erforderlichkeitsnachweis je Stelle gesichert",help:"Ohne methodische PBE-Grundlage keine Stellenmehrung empfehlen"}]},
+  {t:"2. Stellenplanentwurf organisatorisch mitzeichnen",
+   info:"Konsistenzdreieck: Organigramm/GVP (AV 1.1) ↔ Wertigkeiten/Bewertungen (AV 3.5) ↔ Finanzierbarkeit (Haushaltsausgleich!).",
+   items:[
+    {ty:"check",l:"Entwurf mit SG Personal abgeglichen (Konsistenz zu Organigramm/GVP und Bewertungen)"},
+    {ty:"check",l:"Kostenwirkung und Finanzierbarkeit mit FB 1.2/Kämmerei geklärt"}]},
+  {t:"3. Gremienreife herstellen",
+   info:"Typische Ratsnachfrage antizipieren: Geht es nicht mit Optimierung? → Optimierungsteil aus AV 3.3/3.4 parat haben.",
+   items:[
+    {ty:"check",l:"Begründungen adressatengerecht aufbereitet (Anlass, Methode, Ergebnis, Alternativen, Kosten)"},
+    {ty:"check",l:"Antworten auf typische Nachfragen vorbereitet"}]},
+  {t:"4. Beschlussumsetzung nachhalten",
+   info:"kw-Vermerke und temporäre Bedarfe terminlich überwachen – sie dürfen sich nicht verfestigen.",
+   items:[
+    {ty:"check",l:"Nach Beschluss: Organigramm/GVP/Stellenbeschreibungen nachgezogen (AV 1.1/1.4)"},
+    {ty:"check",l:"Besetzungsverfahren bei SG Personal angestoßen"},
+    {ty:"check",l:"kw-Vermerke/temporäre Bedarfe mit Termin überwacht"},
+    {ty:"check",l:"Abweichungen zwischen Beschluss und Empfehlung dokumentiert (für die nächste Fortschreibung)"}]}],
+ ergebnis:"Organisatorisch begründeter, konsistenter Stellenplanbeitrag; nachgehaltene Umsetzung.",
+ qualitaet:["Jede Stellenveränderung mit Erforderlichkeitsnachweis","Konsistenz Organigramm/GVP/Bewertung/Stellenplan","kw-Vermerke terminiert überwacht"]},
+
+av41:{id:"av41",b:"b4",nr:"AV 4.1",titel:"WU: Auftragsklärung und Abgrenzung",
+ ziel:"Abgestimmtes WU-Design: lösungsneutrale Ziele, vollständige Alternativen (immer inkl. Fortführungsfall), angemessene Methode, Erfolgskontroll-Kriterien schon jetzt festlegen.",
+ ausloeser:["Geplante Investition/Beschaffung (auch Kauf/Miete/Leasing)","Make-or-Buy-Frage (Eigen vs. Fremd, Auslagerung, IKZ)","Projekt/IT-Vorhaben","Organisationsmaßnahme mit Kostenwirkung (AV 1.3/2.3/3.4)","Haushaltsrechtliche Pflicht (§ 93 GemO, § 10 GemHVO)","Gremienauftrag"],
+ grundlagen:["Arbeitsanleitung § 7 BHO","§ 93 Abs. 3 GemO, § 10 GemHVO + VV","Brandenburg-Leitfaden kommunale WU"],
+ beteiligte:["Fachamt","Kämmerei/FB 1.2","Büroleiter/OB","ggf. Vergabestelle/Stabsstelle Recht"],
+ steps:[
+  {t:"1. Maßnahme und Ziele definieren",
+   info:"Ziele lösungsneutral, vollständig, präzise (Mengen, Qualität, Termine), am Mindesterfordernis orientiert. Zielkonflikte bereinigen oder transparent machen.",
+   items:[
+    {ty:"text",l:"Maßnahme (kurz)"},
+    {ty:"check",l:"Finanzwirksamkeit festgestellt",help:"Auch die Beibehaltung des Status quo zählt als finanzwirksam"},
+    {ty:"text",l:"Ziele (lösungsneutral, messbar)",long:true},
+    {ty:"check",l:"Mindest-/K.-o.-Anforderungen markiert"},
+    {ty:"choice",l:"Fragestellung:",opts:["Ob überhaupt (Maßnahme ja/nein)","Wie (Alternativenwahl)"]}]},
+  {t:"2. Handlungsalternativen aufspannen",
+   info:"Vollständig denken – der Fortführungsfall (nichts tun) ist IMMER die Referenz. Offensichtlich ungeeignete Alternativen begründet ausscheiden und dokumentieren.",
+   items:[
+    {ty:"choice",l:"Geprüfte Alternativtypen:",multi:true,
+     opts:["Fortführungsfall (Pflicht-Referenz)","Eigenerledigung optimiert","Fremdvergabe","Mischform","Interkommunale Lösung","Kauf/Miete/Leasing-Varianten","Zeitliche Varianten"]},
+    {ty:"check",l:"Ausgeschiedene Alternativen mit Begründung dokumentiert"}]},
+  {t:"3. Untersuchungsdesign festlegen",
+   info:"Einfachste angemessene Methode wählen: kleine Beschaffung = kurzer Kostenvergleich; Auslagerung/Investition = Kapitalwert + Nutzwertanalyse + Risikoanalyse. Betrachtungszeitraum für alle Alternativen identisch; Restwerte einbeziehen.",
+   items:[
+    {ty:"choice",l:"Methodenpaket:",opts:["Kostenvergleichsrechnung (einfacher Fall)","Kapitalwertmethode (Standard)","Kapitalwert + Nutzwertanalyse + Risikoanalyse (große Maßnahme)"]},
+    {ty:"num",l:"Betrachtungszeitraum (Jahre)",help:"Zielerreichung möglich; bei Daueraufgaben repräsentativ (Innovations-/Nutzungszyklen)"},
+    {ty:"check",l:"Betrachtungsperspektive: Stadt als Ganzes (nicht nur der Fachbereich)"},
+    {ty:"check",l:"Datenbedarf je Alternative gelistet; Beteiligte und Zeitplan festgelegt"}]},
+  {t:"4. Abstimmen und beauftragen",
+   info:"Zeitpunkt sichern: WU VOR der Entscheidung und VOR Einleitung eines Vergabeverfahrens – ein Vergabeverfahren ersetzt keine WU.",
+   warn:"Bereits jetzt Kriterien und Verfahren der Erfolgskontrolle festlegen (→ AV 4.6) – nachträglich festgelegte Kriterien sind wertlos.",
+   items:[
+    {ty:"check",l:"Design mit Kämmerei/FB 1.2 abgestimmt (Methodik, Zinssatz, Haushaltsbezug)"},
+    {ty:"check",l:"Bei Vergabebezug: Zentrale Vergabestelle + Stabsstelle Recht eingebunden"},
+    {ty:"check",l:"Erfolgskontroll-Kriterien festgelegt und dokumentiert"},
+    {ty:"check",l:"Freigabe Büroleiter/OB"}]}],
+ ergebnis:"Abgestimmtes WU-Design (Ziele, Alternativen, Methode, Zeitraum, Datenplan, Erfolgskontroll-Kriterien).",
+ qualitaet:["Ziele lösungsneutral und messbar","Fortführungsfall enthalten","Methodik dem Gewicht der Maßnahme angemessen","Design dokumentiert"]},
+
+av42:{id:"av42",b:"b4",nr:"AV 4.2",titel:"WU: Datenerhebung Kosten und Leistungen",
+ ziel:"Vollständige, dokumentierte Kosten-/Leistungs- und Annahmenbasis je Alternative – bei Fremdvergabe zwingend inkl. Transaktions- und Remanenzkosten.",
+ ausloeser:["Freigegebenes WU-Design (AV 4.1)"],
+ grundlagen:["Brandenburg-Leitfaden (Kostenarten-Checkliste)","KGSt Kosten eines Arbeitsplatzes","§ 10 GemHVO (Folgekosten)"],
+ beteiligte:["Fachamt (Daten)","Kämmerei (KLR, Zinssätze)","Vergabestelle","ggf. Anbieter (Marktinfo)"],
+ steps:[
+  {t:"1. Ausgangslage analysieren",
+   info:"Nur so detailliert erfassen, dass alle finanziellen Wirkungen der Alternativen ableitbar sind. Absehbare Entwicklungen (Mengen, Recht, Technik, Demografie) einbeziehen.",
+   items:[
+    {ty:"check",l:"Ist-Zustand erfasst (Personal, Sachmittel, Infrastruktur, Abläufe, aktuelle Kosten)"},
+    {ty:"check",l:"Absehbare Entwicklungen berücksichtigt"}]},
+  {t:"2. Kosten je Alternative erheben",
+   info:"Checkliste: Personalkosten (inkl. Arbeitsplatzpauschalen/Gemeinkosten – KGSt-Bericht!), Sachkosten, Infrastruktur (Räume, IT, Abschreibungen), Betriebs- und Folgekosten (§ 10 GemHVO!), Einnahmenseite (Gebühren, Erlöse, Restwerte, Fördermittel).",
+   warn:"Bei Fremdvergabe zusätzlich: Transaktionskosten (Vergabeverfahren, Vertragsgestaltung, laufendes Vertragscontrolling) und Remanenzkosten (zunächst weiterlaufende eigene Personal-/Gebäude-/Abschreibungskosten) – häufigste RH-Beanstandung!",
+   items:[
+    {ty:"choice",l:"Erfasste Kostenarten:",multi:true,
+     opts:["Personalkosten inkl. Gemeinkosten","Sachkosten","Infrastruktur/Abschreibungen","Betriebs-/Folgekosten","Transaktionskosten (bei Fremdvergabe)","Remanenzkosten (bei Fremdvergabe)","Einnahmen/Erlöse/Restwerte/Fördermittel"]},
+    {ty:"check",l:"Zahlungsreihen je Alternative über den Zeitraum erstellt"},
+    {ty:"check",l:"Preissteigerungs-/Zinsannahmen mit Kämmerei festgelegt"}]},
+  {t:"3. Leistungs-/Qualitätsdaten erfassen",
+   info:"Alternativen mit UNGLEICHEM Leistungsniveau sind ein Scheinvergleich – Servicelevel je Alternative gleichwertig definieren.",
+   items:[
+    {ty:"check",l:"Mengengerüst erfasst (ggf. aus AV 2.2/3.2 übernommen)"},
+    {ty:"check",l:"Qualitätsanforderungen/Servicelevel je Alternative gleichwertig definiert"}]},
+  {t:"4. Marktinformationen einholen (bei Fremdvergabe)",
+   info:"Vergaberechtskonform gestalten (Abstimmung Vergabestelle/Recht) – keine vorweggenommene Vergabe!",
+   items:[
+    {ty:"check",l:"Markterkundung/Richtpreisanfragen/Erfahrungswerte anderer Kommunen eingeholt"}]},
+  {t:"5. Datenbasis dokumentieren und plausibilisieren",
+   info:"Je Wert: Quelle, Stand, Annahme-/Schätzlogik. Unsichere Annahmen kennzeichnen – sie sind der Input für die Sensitivitätsanalyse (AV 4.3).",
+   items:[
+    {ty:"check",l:"Jede Annahme belegt und gekennzeichnet"},
+    {ty:"check",l:"Vollständigkeitscheck gegen Kostenarten-Liste; Gegencheck Kämmerei"}]}],
+ ergebnis:"Vollständige, dokumentierte Kosten-/Leistungs- und Annahmenbasis je Alternative.",
+ qualitaet:["Alternativen mit gleichem Leistungsniveau verglichen","Folge-, Transaktions- und Remanenzkosten enthalten","Jede Annahme belegt und gekennzeichnet"]},
+
+av43:{id:"av43",b:"b4",nr:"AV 4.3",titel:"WU: Kosten-Nutzen-/Vergleichsrechnung",
+ ziel:"Geprüfter quantitativer Wirtschaftlichkeitsvergleich mit Robustheitsaussage – Kapitalwertmethode als Standard, Sensitivitäten offen ausweisen.",
+ ausloeser:["Vorliegende Datenbasis (AV 4.2)"],
+ grundlagen:["Arbeitsanleitung § 7 BHO (Kapitalwertmethode)","Kalkulationszins: BMF-Rundschreiben/Kämmerei"],
+ beteiligte:["Kämmerei/FB 1.2 (fachliche Prüfung, Zinssatz)","Fachamt (Datenvalidierung)"],
+ steps:[
+  {t:"1. Rechenmodell aufbauen",
+   info:"Tabellenkalkulation: je Alternative eine Zahlungsreihe; Annahmenblatt GETRENNT von Rechenblättern (Änderbarkeit für Sensitivitäten); Formeln statt Festwerte; Versionierung.",
+   items:[
+    {ty:"check",l:"Modellstruktur steht (Annahmenblatt getrennt, Formeln, Versionierung)"}]},
+  {t:"2. Berechnung durchführen",
+   info:"Der Schnellrechner unten vergleicht zwei Alternativen mit konstanten Jahresbeträgen (vereinfachte Kapitalwertmethode). Für die offizielle Vorlage das vollwertige Tabellenmodell mit jahresscharfen Zahlungsreihen verwenden – der Rechner dient der Voreinschätzung und Sensitivitätsprüfung.",
+   items:[
+    {ty:"calc",kind:"kw",l:"Kapitalwert-Schnellvergleich (A vs. B)"},
+    {ty:"check",l:"Nebenrechnungen transparent (Personalkostenherleitung, Gemeinkostenzuschläge, Preissteigerungen)"},
+    {ty:"check",l:"Bei einfachen Fällen: Kostenvergleichs-/Amortisationsrechnung als Zusatzinfo erstellt"}]},
+  {t:"3. Kennzahlen bilden",
+   info:"Z. B. Kosten je Fall/Leistungseinheit, Jahresbelastung des Ergebnishaushalts, Investitionssumme, Break-even-Menge – Vergleich mit Benchmarks, wo vorhanden.",
+   items:[
+    {ty:"text",l:"Kernkennzahlen",ph:"z. B. Kosten je Fall: … €",long:true}]},
+  {t:"4. Sensitivitäts- und Szenarioanalyse",
+   info:"Kritische Annahmen einzeln variieren (Menge, Lohn-/Preissteigerung, Zins, Nutzungsdauer) und ausweisen, ab welcher Änderung die Rangfolge KIPPT. Mindestens pessimistisch/realistisch/optimistisch.",
+   items:[
+    {ty:"check",l:"Sensitivitäten gerechnet (Kipppunkte ausgewiesen)",help:"Tipp: Im Schnellrechner oben Zins-/Zeitraum-Regler bewegen und beobachten, wann die Rangfolge wechselt"},
+    {ty:"check",l:"Szenarien (pessimistisch/realistisch/optimistisch) je Alternative erstellt"},
+    {ty:"choice",l:"Robustheit des Ergebnisses:",opts:["Robust (Rangfolge stabil)","Bedingt robust (kippt bei plausiblen Änderungen)","Nicht robust"]}]},
+  {t:"5. Quantitatives Zwischenergebnis festhalten",
+   info:"Vier-Augen-Prüfung durch die Kämmerei dokumentieren – das quantitative Ergebnis ist erst danach belastbar.",
+   items:[
+    {ty:"check",l:"Ergebnisblatt erstellt (Kapitalwerte, Kennzahlen, Sensitivitätsgrenzen, vorläufige Rangfolge)"},
+    {ty:"check",l:"Fachliche Prüfung durch Kämmerei dokumentiert"}]}],
+ ergebnis:"Geprüfter quantitativer Wirtschaftlichkeitsvergleich mit Robustheitsaussage.",
+ qualitaet:["Gleicher Zeitraum/Zins für alle Alternativen","Rechenmodell nachvollziehbar und änderbar","Sensitivitäten ausgewiesen","Vier-Augen-Prüfung erfolgt"]},
+
+av44:{id:"av44",b:"b4",nr:"AV 4.4",titel:"WU: Qualitative Bewertung und Risikoanalyse",
+ ziel:"Gesamtbewertung aus drei Bausteinen: monetäres Ergebnis + Nutzwert + Risikobild – mit begründeter Handlungsempfehlung und Gegenprobe Eigenerledigung.",
+ ausloeser:["Vorliegendes Rechenergebnis (AV 4.3)"],
+ grundlagen:["Arbeitsanleitung § 7 BHO (NWA)","PPP-Leitfaden (Risiken)","Kommunalbericht 2024 (RH-Linie Eigenerledigung)"],
+ beteiligte:["Fachamt","Kämmerei","Stabsstelle Recht/Vergabestelle (Risiken)","Büroleiter/OB"],
+ steps:[
+  {t:"1. Qualitative Kriterien bewerten (Nutzwertanalyse)",
+   info:"Gewichtung VOR der Bewertung festlegen (Workshop, Punktverfahren) – keine Zielanpassung ans Wunschergebnis. Eine Alternative, die ein Muss-Ziel verfehlt, scheidet aus – unabhängig vom Kapitalwert.",
+   items:[
+    {ty:"choice",l:"Bewertete Kriterien:",multi:true,
+     opts:["Leistungsqualität","Bürgernähe/Erreichbarkeit","Flexibilität/Steuerbarkeit","Personalgewinnung/-bindung","Strategische Bedeutung","Know-how-Erhalt im Haus"]},
+    {ty:"check",l:"Gewichtung vorab festgelegt (dokumentiert)"},
+    {ty:"check",l:"K.-o.-Kriterien geprüft"},
+    {ty:"check",l:"Nutzwerte berechnet, Begründungen dokumentiert",help:"NWA nie ohne monetäres Verfahren verwenden"}]},
+  {t:"2. Risiken identifizieren und bewerten",
+   info:"Je Risiko: Eintrittswahrscheinlichkeit × Auswirkung (qualitativ oder als monetärer Risikozuschlag); Gegenmaßnahmen benennen (Vertragsgestaltung, Controlling, Exit-Klauseln).",
+   items:[
+    {ty:"choice",l:"Geprüfte Risikofelder:",multi:true,
+     opts:["Rechtlich (Vergabe, Arbeitsrecht/Personalübergang, Steuern)","Wirtschaftlich (Insolvenz, Nachforderungen, Preisgleitung)","Organisatorisch (Schnittstellen, Qualitätssicherung, Steuerungsaufwand)","Strategisch (Abhängigkeit/Lock-in, Know-how-Verlust, Rückholbarkeit)"]},
+    {ty:"check",l:"Risiken BEIDER Seiten betrachtet (auch Risiken der Eigenerledigung)"},
+    {ty:"check",l:"Gegenmaßnahmen je Risiko benannt"}]},
+  {t:"3. Ergebnisse zusammenführen",
+   info:"Zielkonflikte offenlegen (z. B. billiger, aber riskanter). Bedingungen formulieren (z. B. Fremdvergabe nur mit Vertragscontrolling und Exit-Option).",
+   items:[
+    {ty:"text",l:"Gesamtempfehlung mit Begründung",long:true},
+    {ty:"text",l:"Bedingungen/Auflagen",ph:"z. B. nur mit Exit-Klausel …"}]},
+  {t:"4. Gegenprobe Eigenerledigung",
+   info:"RH-Linie: Vor jeder Fremdvergabe-Empfehlung prüfen, ob die OPTIMIERTE Eigenerledigung (→ Bereich 2/3) das Ziel erreichen kann.",
+   items:[
+    {ty:"choice",l:"Kann die optimierte Eigenerledigung das Ziel erreichen?",opts:["Ja → Fremdvergabe-Empfehlung überdenken","Nein – begründet ausgeschlossen","Nicht relevant (keine Fremdvergabe-Frage)"]}]}],
+ ergebnis:"Gesamtbewertung (monetär + qualitativ + Risiko) mit begründeter Handlungsempfehlung.",
+ qualitaet:["Gewichtung vor der Bewertung festgelegt","Risiken beider Seiten betrachtet","Empfehlung folgt nachvollziehbar aus den drei Bausteinen"]},
+
+av45:{id:"av45",b:"b4",nr:"AV 4.5",titel:"WU: Entscheidungsvorlage und Präsentation",
+ ziel:"Entscheidungsreife, abgesicherte Vorlage mit vollständiger Haushaltswirkung – die WU unterstützt die Entscheidung, ersetzt sie nicht.",
+ ausloeser:["Abgeschlossene Gesamtbewertung (AV 4.4)"],
+ grundlagen:["Arbeitsanleitung § 7 BHO (Pflichtinhalte)","ADGA Ziff. 48.3 (OB-Vorlage)","Hauptsatzung (Gremienzuständigkeit)"],
+ beteiligte:["Verwaltungsleitung (OB/Büroleiter)","Gremien","Kämmerei","Recht/Vergabe","ggf. SG Personal/Personalrat"],
+ steps:[
+  {t:"1. Entscheidungsreife Vorlage erstellen",
+   info:"Pflichtinhalte-Checkliste nach § 7 BHO-Arbeitsanleitung – Managementfassung (eine Seite: Frage, Alternativen, Empfehlung, Kosten) voranstellen.",
+   items:[
+    {ty:"choice",l:"Pflichtinhalte enthalten:",multi:true,
+     opts:["Ausgangslage + Anlass","Ziele + Zielkonflikte","Betrachtungszeitraum","Alternativen inkl. Fortführungsfall","Annahmen + Methodik","Monetäres Ergebnis + Sensitivitäten","Qualitative Bewertung","Risiken + Risikoverteilung","Vollständige Haushaltswirkung (Ergebnis-/Finanzhaushalt, Folgejahre, Stellenplan → AV 3.6)","Empfehlung","Kriterien + Verfahren der Erfolgskontrolle"]},
+    {ty:"check",l:"Managementfassung vorangestellt"}]},
+  {t:"2. Absichern",
+   info:"Fachlich/rechnerisch: Kämmerei. Rechtlich: Stabsstelle Recht/Vergabestelle (insb. Make-or-Buy: Vergabe-, Arbeits-, Steuerrecht). Bei Personalwirkung: SG Personal + Personalrat.",
+   items:[
+    {ty:"check",l:"Kämmerei-Prüfung erfolgt"},
+    {ty:"check",l:"Rechtliche Prüfung erfolgt (falls einschlägig)"},
+    {ty:"check",l:"Gremienweg geklärt (Zuständigkeit nach Hauptsatzung, Fristen)"}]},
+  {t:"3. Präsentieren und entscheiden lassen",
+   info:"Kernbotschaft zuerst, Sensitivitäten EHRLICH darstellen, Nachfragen zur Datenbasis vorbereiten. Abweichende Gremienentscheidung dokumentieren.",
+   items:[
+    {ty:"check",l:"Ergebnispräsentation gehalten"},
+    {ty:"choice",l:"Entscheidung:",opts:["Empfehlung angenommen","Abweichend entschieden (dokumentiert)","Vertagt/Nachbesserung"]}]},
+  {t:"4. Beschluss dokumentieren und überleiten",
+   info:"Startpunkt und Daten-Baseline für die Erfolgskontrolle sichern (→ AV 4.6); bei Organisationsfolgen AV 1.1/1.4/3.6 anstoßen.",
+   items:[
+    {ty:"check",l:"Beschluss/Freigabe aktenkundig; Umsetzungsauftrag mit Verantwortlichen und Terminen"},
+    {ty:"check",l:"Baseline für Erfolgskontrolle gesichert"},
+    {ty:"check",l:"Folge-AVs angestoßen (AV 1.1/1.4/3.6)"}]}],
+ ergebnis:"Entscheidungsreife, abgesicherte Vorlage; dokumentierter Beschluss mit Umsetzungs- und Kontrollauftrag.",
+ qualitaet:["Alle Pflichtinhalte nach § 7 BHO enthalten","Haushaltswirkung vollständig (inkl. Folgejahre)","Erfolgskontrolle vorbereitet (Kriterien + Baseline)"]},
+
+av46:{id:"av46",b:"b4",nr:"AV 4.6",titel:"WU: Erfolgskontrolle / Nachverfolgung",
+ ziel:"Dreistufiger Soll-Ist-Vergleich: Zielerreichung + Wirkung + Wirtschaftlichkeit – anhand der VORAB definierten Kriterien, mit Konsequenzen und Lernschleife.",
+ ausloeser:["Umgesetzte Maßnahme (abschließende Kontrolle)","Laufende Maßnahme > 2 Jahre / Meilensteine (begleitend)","Regelturnus","Auffälligkeiten im Vollzug"],
+ grundlagen:["Arbeitsanleitung § 7 BHO Abschnitt D","Kriterien aus AV 4.1/4.5"],
+ beteiligte:["Fachamt","Kämmerei","Büroleiter/OB","ggf. Gremien","Rechnungsprüfung (Adressat der Doku)"],
+ steps:[
+  {t:"1. Kontrollzeitpunkt und -umfang bestimmen",
+   info:"Begleitend bei mehrjährigen Maßnahmen (Chance zur Kurskorrektur!), abschließend nach Beendigung bzw. Konsolidierungsphase.",
+   items:[
+    {ty:"choice",l:"Kontrolltyp:",opts:["Begleitend (Meilenstein)","Abschließend","Laufende Beobachtung"]}]},
+  {t:"2. Soll-Ist-Vergleich dreistufig",
+   info:"1) Zielerreichung: Ziele aus AV 4.1 erreicht (Mengen, Qualität, Termine)? 2) Wirkung: tatsächlich auf die Maßnahme zurückzuführen? 3) Wirtschaftlichkeit: Ist-Kosten gegen WU-Annahmen (Kapitalwert-Nachrechnung).",
+   items:[
+    {ty:"choice",l:"Zielerreichung:",opts:["Erreicht","Teilweise","Verfehlt"]},
+    {ty:"choice",l:"Wirkung der Maßnahme zuzurechnen?",opts:["Ja","Teilweise/unklar","Nein (andere Ursachen)"]},
+    {ty:"choice",l:"Wirtschaftlichkeit (Ist vs. WU-Annahmen):",opts:["Besser als geplant","Wie geplant","Schlechter als geplant"]},
+    {ty:"check",l:"Abweichungen je Kostenart aufgeschlüsselt"}]},
+  {t:"3. Abweichungen analysieren und nachsteuern",
+   info:"Ursachen: Annahmefehler, Mengenänderung, Vollzugsdefizit, externe Faktoren. Bei laufenden Maßnahmen: Vertragsanpassung, Prozessänderung, im Extremfall Abbruch/Rückholung.",
+   items:[
+    {ty:"text",l:"Ursachenanalyse (Kurzfassung)",long:true},
+    {ty:"check",l:"Nachsteuerung vorgeschlagen (falls nötig)"},
+    {ty:"check",l:"Bericht an Leitung/Gremium (insb. wenn Beschluss auf der WU beruhte)"}]},
+  {t:"4. Lernschleife schließen",
+   info:"Treffsicherheit der Annahmen dokumentieren, typische Kostenfallen (Remanenz-/Transaktionskosten) in die Annahmen-Bibliothek aufnehmen.",
+   items:[
+    {ty:"check",l:"Erkenntnisse für künftige WU dokumentiert; Annahmen-Bibliothek gepflegt"},
+    {ty:"check",l:"Ergebnis in die Fachbereichs-Steuerung zurückgespielt (→ AV 2.5, → AV 3.3)"}]}],
+ ergebnis:"Dokumentierter Wirtschaftlichkeitsnachweis bzw. Abweichungsbericht mit Nachsteuerung; Lessons Learned.",
+ qualitaet:["Kontrolle anhand vorab definierter Kriterien (nicht nachträglich passend gemacht)","Alle drei Kontrollstufen bedient","Konsequenzen gezogen und dokumentiert"]},
+
+av51:{id:"av51",b:"b5",nr:"AV 5.1",titel:"Wahlprojekt initialisieren (Terminplan, Ressourcen)",
+ ziel:"Freigegebener Projekt- und Fristenplan mit Verantwortlichkeiten, Budget- und Materialgrundlage – der Fristenkalender ist das zentrale Steuerungsinstrument jeder Wahl.",
+ ausloeser:["Festsetzung des Wahltags (Landesregierung/Bund/Aufsichtsbehörde)","Ratsbeschluss über Bürgerentscheid-Termin","Zulassung eines Volksbegehrens","Vorgezogene Neuwahl (verkürzte Fristen!)"],
+ grundlagen:["Terminkalender Landeswahlleiter (wahlen.rlp.de)","§ 71, § 75 KWG","Rundschreiben Landes-/Kreiswahlleiter","Nachbereitungsbericht der Vorwahl"],
+ beteiligte:["OB (Wahlleiter)","Büroleiter","SG Personal","FB 1.2 Finanzen","SG IT","Pressestelle","Kreiswahlleitung"],
+ steps:[
+  {t:"1. Rechtsrahmen fixieren",
+   info:"Die Wahlart bestimmt Rechtsquellen, Rollen und Uhrzeiten: Kommunal = KWG/KWO (Stadt ist Herrin des Verfahrens); BTW/EP/LTW = Stadt ist Wahlbehörde, Zulassung beim Kreis-/Landeswahlleiter.",
+   items:[
+    {ty:"choice",id:"wa51",l:"Welche Wahl/Abstimmung?",
+     opts:["Kommunalwahl (verbunden mit EP-Wahl)","Direktwahl OB/Ortsvorsteher","Bundestagswahl","Europawahl","Landtagswahl","Bürgerentscheid","Volksentscheid"]},
+    {ty:"check",l:"Verbundene Wahlen identifiziert (gemeinsame Benachrichtigung/Wahlscheine, getrennte Auszählreihenfolge)"},
+    {ty:"check",l:"Rundschreiben von Landes-/Kreiswahlleiter gesichtet und abgelegt (je Wahl ein Aktenknoten)"}]},
+  {t:"2. Projekt-Fristenkalender erstellen",
+   info:"Wahltag eingeben – der Rechner erzeugt den T−x-Plan (Kommunal- oder Bundestagswahl-Systematik; EP/LTW analog). Jede Frist braucht zusätzlich: Verantwortlichen + internen Vorlauf-Puffer.",
+   warn:"§ 75 KWG: Fristen verlängern sich NICHT durch Wochenende/Feiertag, keine Wiedereinsetzung. Vor jeder Wahl den aktuellen amtlichen Kalender (wahlen.rlp.de) gegenprüfen!",
+   items:[
+    {ty:"calc",kind:"fristen",l:"Fristenrechner (T−x ab Wahltag)"},
+    {ty:"check",l:"Interne Meilensteine ergänzt (Druckfreigaben, Kuvertierung, Schulungstermine, Materialpackung)"},
+    {ty:"check",l:"Wiedervorlagen gesetzt; wöchentlicher Status-Jour-fixe des Wahlamts terminiert"}]},
+  {t:"3. Ressourcen planen",
+   info:"Budget: Wahlkostenstelle einrichten; Erstattung klären (§ 72 KWG kommunal; § 50 BWahlG/§ 25 EuWG/LWahlG für Bund/Land) – Nachweise GPA-fest sammeln.",
+   items:[
+    {ty:"check",l:"Personal: Wahlamts-Team, AG Briefwahl, Springer, Vertretungen; Urlaubssperre-Zeitraum mit SG Personal abgestimmt"},
+    {ty:"check",l:"Budget: Wahlkostenstelle eingerichtet, Erstattungslogik mit FB 1.2 geklärt"},
+    {ty:"check",l:"Material/IT: Vordrucke (KWO-/BWO-Muster!), Stimmzettel-Druckkapazität, Wahlfachverfahren-Update + Testplan, Urnen/Kabinen inventarisiert"}]},
+  {t:"4. Auftakt-Bekanntmachungen und Gremien",
+   info:"Kommunalwahl/Direktwahl: Aufforderung zur Einreichung von Wahlvorschlägen bis T−69; bei OB-Wahl öffentliche Stellenausschreibung bis T−69.",
+   items:[
+    {ty:"check",l:"Auftakt-Bekanntmachung(en) fristgerecht veröffentlicht (Form: Hauptsatzung/ADGA Ziff. 66 – Rhein-Lahn-Kurier)"},
+    {ty:"check",l:"OB/Büroleiter informiert (Projektplan als Vorlage); Pressestelle eingebunden (Kommunikationsplan)"}]},
+  {t:"5. Risiko- und Lessons-Learned-Check",
+   info:"Der Nachbereitungsbericht der Vorwahl ist die beste Fehlerprävention – bekannte Engpässe (Räume, Helferausfälle, Software) im Plan adressieren.",
+   items:[
+    {ty:"check",l:"Nachbereitungsbericht der Vorwahl ausgewertet, Engpässe adressiert"}]}],
+ ergebnis:"Freigegebener Projekt- und Fristenplan mit Verantwortlichkeiten, Budget- und Materialgrundlage; erledigte Auftakt-Bekanntmachungen.",
+ qualitaet:["Jede gesetzliche Frist hat Datum + Verantwortlichen + Puffer","Bekanntmachungen in der Form der Hauptsatzung/ADGA","Plan mit dem Wahlleiter (OB) abgestimmt"]},
+
+av52:{id:"av52",b:"b5",nr:"AV 5.2",titel:"Stimmbezirke einteilen, Wahllokale organisieren",
+ ziel:"Beschlossene, im Fachverfahren gepflegte Bezirkseinteilung und geeignete, ausgestattete Wahllokale – die Einteilung ist Aufgabe des OB (§ 10 KWG), operativ des Wahlamts.",
+ ausloeser:["Projektstart (AV 5.1)","Erkenntnisse aus der Vorwahl (Auslastung, Barrieren)","Wegfall eines Wahllokals","Neubaugebiete/Melderegisterentwicklung"],
+ grundlagen:["§§ 9, 10 KWG","§§ 12, 13, 46, 61–66 BWO","Vault: Stimmbezirke, Wahllokale und Briefwahlorganisation"],
+ beteiligte:["OB (Einteilungsentscheidung)","Schulverwaltung/Gebäudemanagement","Bauhof (Logistik)","SG IT","Ortsvorsteher","Kreiswahlleitung"],
+ steps:[
+  {t:"1. Datenbasis aktualisieren",
+   info:"Kennzahlen je Bezirk aus der Vorwahl auswerten: Wahlberechtigte, Urnenwähler, Briefwahlquote, Wartezeiten – hohe Briefwahlquoten erlauben größere Urnenbezirke.",
+   items:[
+    {ty:"check",l:"Wahlberechtigten-Zahlen je Bezirk aus dem Melderegister gezogen"},
+    {ty:"check",l:"Briefwahlquote und Urnenwähler der Vorwahl je Bezirk ausgewertet"},
+    {ty:"choice",l:"Befund je Bezirk:",multi:true,opts:["Zu groß (Wartezeiten)","Zu klein (Wahlgeheimnis! Faustwert ≥ 50 Urnenwähler)","Zuschnitt ungünstig","Unauffällig"]}]},
+  {t:"2. Wahlbereichs-Check (nur allgemeine Kommunalwahl)",
+   info:"Lahnstein (10.000–40.000 EW): 4–5 Wahlbereiche möglich; Abweichung max. ±25 % vom Durchschnitt; Ratsbeschluss spätestens 43 Monate nach Beginn der Wahlzeit (§ 9 KWG).",
+   items:[
+    {ty:"choice",id:"wb52",l:"Wahlbereiche relevant?",opts:["Nein (keine Wahlbereiche / andere Wahlart)","Ja – Prüfung nötig"]},
+    {ty:"check",l:"±25-%-Prüfung durchgeführt, ggf. Ratsbeschluss fristgerecht herbeigeführt",showIf:{id:"wb52",eq:"Ja – Prüfung nötig"}}]},
+  {t:"3. Stimmbezirke festlegen",
+   info:"Je Wahlbereich/Ortsbezirk mindestens ein Stimmbezirk (Friedrichssegen mit Ortsvorsteherwahl beachten). Sonderstimmbezirke für Einrichtungen bzw. bewegliche Wahlvorstände prüfen.",
+   items:[
+    {ty:"check",l:"Einteilungsentwurf erstellt (Bezirksnummern, Straßenverzeichnis-Zuordnung)"},
+    {ty:"check",l:"Sonderstimmbezirke/bewegliche Wahlvorstände geprüft (Kliniken, Heime)"},
+    {ty:"check",l:"OB-Entscheidung herbeigeführt und dokumentiert"},
+    {ty:"check",l:"Zuordnung im Wahlfachverfahren gepflegt; Testauszug Wählerverzeichnis je Bezirk geprüft und FREIGEGEBEN",help:"Stellenbeschreibung: Überprüfung und Freigabe der Daten im Wahlfachverfahren"}]},
+  {t:"4. Wahllokale sichern und prüfen",
+   info:"Eignungskatalog: Barrierefreiheit (Rampe, Türbreiten, WC), Größe, Strom/Licht, Erreichbarkeit/Parken, Beschilderung, keine parteipolitische Prägung. Barrierefreiheits-Status muss in Benachrichtigung/Bekanntmachung!",
+   items:[
+    {ty:"check",l:"Objektliste mit Trägern/Hausmeistern abgestimmt; schriftliche Nutzungszusagen liegen vor"},
+    {ty:"check",l:"Begehung mit Kriterienkatalog je Lokal durchgeführt (Protokoll)"},
+    {ty:"check",l:"Abschließende Eignungsentscheidung je Lokal dokumentiert"},
+    {ty:"check",l:"Für nicht barrierefreie Lokale: Ausgleich geplant (Wahlschein-Hinweis, mobile Rampe)"}]},
+  {t:"5. Ausstattung und Logistik",
+   info:"Checkliste je Wahlkoffer: Urne + Siegel, Kabinen, Stimmzettel (gezählt!), Verzeichnisse, Niederschriften, Schnellmelde-Unterlagen, Beschilderung, Notfallnummern. Aufbau bis T−1.",
+   items:[
+    {ty:"check",l:"Wahlkoffer nach Checkliste gepackt; zentrale Materialausgabe mit Quittung organisiert"},
+    {ty:"check",l:"Transportplan Wahltag steht (Übergabe vor 8 Uhr); Rückholung/Abbau geplant"},
+    {ty:"check",l:"Vollzugsmeldung je Lokal eingegangen (Checkliste unterschrieben zurück)"}]}],
+ ergebnis:"Beschlossene, gepflegte Bezirkseinteilung; geeignete, gesicherte, ausgestattete Wahllokale; dokumentierte Eignungsentscheidungen.",
+ qualitaet:["Kein Bezirk gefährdet das Wahlgeheimnis","Barrierefreiheit maximiert und transparent kommuniziert","Bezirksdaten konsistent (Melderegister ↔ Fachverfahren ↔ Bekanntmachung)","Jede Materialübergabe quittiert"]},
+
+av53:{id:"av53",b:"b5",nr:"AV 5.3",titel:"Wählerverzeichnis führen, wahlrechtliche Einzelfälle",
+ ziel:"Vollständiges, beurkundetes Wählerverzeichnis je Stimmbezirk und rechtssicher entschiedene Einzelfälle (EU-Bürger, Auslandsdeutsche, Wahlausschlüsse) – null Fristversäumnisse.",
+ ausloeser:["Wahlprojekt (Stichtag T−42)","Anträge auf Eintragung (EU-Bürger, Auslandsdeutsche)","Wahlausschluss-Mitteilungen der Justiz","Umzüge","Einwendungen"],
+ grundlagen:["§§ 11–13 KWG, KWO §§ 10–16","§§ 14–24 BWO","§ 17a EuWO (Unionsbürger)"],
+ beteiligte:["Bürgerbüro/Meldebehörde","Justizbehörden","Kreisverwaltung (verbundene Wahlen)","BVA (EP-Datenaustausch)"],
+ steps:[
+  {t:"1. Aufstellung zum Stichtag",
+   info:"Wählerverzeichnis je Stimmbezirk zum Stichtag T−42 aus dem Melderegister. Wahlrecht je Wahlart: Kommunal = Deutsche + EU-Bürger (3-Monats-Wohnsitz); BTW = nur Deutsche; EP = Deutsche + Unionsbürger auf Antrag; LTW = Deutsche (3 Monate RLP).",
+   items:[
+    {ty:"check",l:"Verzeichnis zum Stichtag generiert"},
+    {ty:"check",l:"Plausibilitätsprüfung: Gesamtzahl vs. Vorwahl/Melderegisterstatistik, Duplikate, Auskunftssperren"},
+    {ty:"num",l:"Zahl der Wahlberechtigten (gesamt)"}]},
+  {t:"2. Besondere Eintragungsfälle fristgerecht bearbeiten",
+   info:"EP-Wahl: Unionsbürger-Antrag (§ 17a EuWO) bis T−21; einmal gestellt, wirkt er für künftige EP-Wahlen fort – Bestandsverzeichnis führen! Auslandsdeutsche beantragen bei der letzten Wohnsitzgemeinde (bis T−21).",
+   items:[
+    {ty:"choice",l:"Bearbeitete Fallgruppen:",multi:true,
+     opts:["Unionsbürger EP-Wahl (§ 17a EuWO, bis T−21)","Meldepflichtbefreite EU-Bürger Kommunalwahl (bis T−37, 12 Uhr)","Auslandsdeutsche BTW/EP (bis T−21)","Umzug um den Stichtag","JVA/Einrichtungen","Keine"]},
+    {ty:"check",l:"Doppelwahl-Ausschluss EP beachtet (eidesstattliche Erklärung, BVA-Datenaustausch)"}]},
+  {t:"3. Wahlausschluss-Management (Daueraufgabe)",
+   info:"Mitteilungen der Justiz (Richterspruch) auswerten; Fristen für Beginn UND Ende des Ausschlusses überwachen; fristgerechte Löschung dokumentieren.",
+   items:[
+    {ty:"check",l:"Justiz-Mitteilungen ausgewertet und erfasst"},
+    {ty:"check",l:"Wiedervorlagen für Fristende/Löschung gesetzt"}]},
+  {t:"4. Benachrichtigung, Einsicht, Einwendungen",
+   info:"Benachrichtigung bis T−21 (Inhalt: Wahlraum + Barrierefreiheit, Wahlzeit, Verzeichnisnummer, Wahlscheinhinweis). Einsicht T−20 bis T−16 nur in EIGENE Daten; Auskunftssperren technisch sicherstellen.",
+   items:[
+    {ty:"check",l:"Bekanntmachung Einsichtnahme bis T−24 (bei verbundenen Wahlen über Kreisverwaltung)"},
+    {ty:"check",l:"Wahlbenachrichtigungen bis T−21 versandt"},
+    {ty:"check",l:"Rückläufer (unbekannt verzogen) ausgewertet → Verzeichnis bereinigt"},
+    {ty:"check",l:"Einsichtsmöglichkeit T−20 bis T−16 organisiert"},
+    {ty:"num",l:"Zahl der Einwendungen"},
+    {ty:"check",l:"Einwendungen entschieden und zugestellt (bis T−10; BTW-Beschwerdeweg bis T−4 beachtet)"}]},
+  {t:"5. Abschluss",
+   info:"Abschluss des Verzeichnisses: Kommunalwahl T−2, 18 Uhr (zusammen mit Wahlscheinschluss); BTW frühestens T−3, spätestens T−1. Beurkundung der Zahlen je Bezirk.",
+   items:[
+    {ty:"check",l:"Verzeichnis abgeschlossen, Zahlen je Bezirk beurkundet"},
+    {ty:"check",l:"Abgleich mit ausgegebenen Wahlscheinen (Sperrvermerke) erfolgt"},
+    {ty:"check",l:"Verzeichnis der für ungültig erklärten Wahlscheine an die Wahlvorstände gegeben"},
+    {ty:"check",l:"Auszüge/Endstände in die Wahlkoffer gepackt (→ AV 5.2)"}]}],
+ ergebnis:"Vollständiges, beurkundetes Wählerverzeichnis je Stimmbezirk; rechtssicher entschiedene Einzelfälle; lückenlose Ausschluss-Verwaltung.",
+ qualitaet:["Null Fristversäumnisse (T−42/T−24/T−21/T−16/T−10)","Jeder Einzelfall mit Rechtsgrundlage dokumentiert","Sperrvermerk-Konsistenz Wahlschein ↔ Verzeichnis","Datenschutz gewahrt (Einsicht nur eigene Daten)"]},
+
+av54:{id:"av54",b:"b5",nr:"AV 5.4",titel:"Wahlscheine erteilen, Briefwahl durchführen",
+ ziel:"Rechtzeitig versorgte Briefwähler und ein konsistentes Wahlschein-/Sperrvermerkswesen – keine Doppelstimmabgabe möglich.",
+ ausloeser:["Beginn der Wahlscheinphase (nach Zulassung der Wahlvorschläge, ca. T−34 kommunal / T−26 BTW)","Laufende Anträge bis Fristende","Stichwahl (Wahlscheine von Amts wegen)"],
+ grundlagen:["§ 14, § 31 KWG; KWO §§ 17–22","§§ 25–31, 66, 75 BWO","Vault: Stimmbezirke/Briefwahlorganisation Abschn. 3"],
+ beteiligte:["AG Briefwahl","Bürgerbüro","Post/Dienstleister","Briefwahlvorstände","Kreiswahlleitung"],
+ steps:[
+  {t:"1. Briefwahlbüro aufsetzen",
+   info:"Sofortwahl an Ort und Stelle ermöglichen (Kabine!). Antragskanäle: Online/QR der Benachrichtigung, schriftlich, persönlich – NICHT telefonisch. Vollmacht: max. 4 Vertretungen.",
+   items:[
+    {ty:"check",l:"Räume, Öffnungszeiten, Schichtplan der AG Briefwahl stehen"},
+    {ty:"check",l:"Sofortwahl-Kabine, Drucker, Siegel, verschließbare Behälter vorhanden"},
+    {ty:"check",l:"Antragskanäle scharf geschaltet; Vollmachtsregeln am Tresen ausgehängt"}]},
+  {t:"2. Anträge prüfen, Wahlscheine ausstellen",
+   info:"Fristuhrzeiten je Wahlart NICHT verwechseln: Kommunal bis T−2, 18 Uhr; BTW bis Freitag vor der Wahl, 15 Uhr; Sonderfälle (plötzliche Erkrankung) jeweils Wahltag 15 Uhr.",
+   warn:"Jede Ausstellung sofort mit Sperrvermerk im Wählerverzeichnis koppeln – die Sperrvermerk-Disziplin verhindert Doppelstimmabgabe.",
+   items:[
+    {ty:"check",l:"Prüfung gegen Wählerverzeichnis + Sperrvermerk-Setzung läuft im Vier-Augen-Takt"},
+    {ty:"check",l:"Wahlscheinverzeichnis geführt (Regelfälle / Sonderfälle getrennt)"},
+    {ty:"check",l:"Auslandsanträge priorisiert (Luftpost)"},
+    {ty:"check",l:"Verlustfälle korrekt behandelt (Ersatz nur nach glaubhafter Versicherung; Altschein für ungültig erklärt, Liste fortgeschrieben)"},
+    {ty:"num",l:"Ausgegebene Wahlscheine (Stand)"}]},
+  {t:"3. Rückläufer (Wahlbriefe) verwalten",
+   info:"Täglich: Eingangsstempel, Zählung, sichere/versiegelte Verwahrung – KEINE Öffnung! Abholvereinbarung mit der Post für den Wahltag spätestens 6 Wochen vorher.",
+   items:[
+    {ty:"check",l:"Täglicher Eingangsprozess läuft (Stempel, Zählung, Verwahrung)"},
+    {ty:"check",l:"Post-Abholvereinbarung für den Wahltag geschlossen"},
+    {ty:"check",l:"Wöchentliches Mengenmonitoring an den Wahlleiter; Briefwahlvorstands-Bedarf nachgesteuert (→ AV 5.5)"}]},
+  {t:"4. Briefwahlvorstände versorgen (Wahltag)",
+   info:"Übergabe der Wahlbriefe ab 10 Uhr (kommunal) mit Protokoll; Nachlieferungen bis 18 Uhr; 18-Uhr-Briefkastenleerung dokumentieren (Zeugen).",
+   items:[
+    {ty:"check",l:"Übergabeprotokolle vorbereitet; Zurückweisungsverfahren (§ 39 KWG/§ 75 BWO) liegt den Vorständen vor"},
+    {ty:"check",l:"18-Uhr-Schluss organisiert (Leerung dokumentiert, Direktabgaben im Wahlraum geregelt)"}]},
+  {t:"5. Stichwahl-Sonderprozess (Direktwahlen)",
+   info:"Unverzüglich nach der Hauptwahl: Wahlscheine VON AMTS WEGEN an alle Wahlschein-Inhaber der Hauptwahl und an erst zur Stichwahl Wahlberechtigte; Wählerverzeichnis der Hauptwahl gilt fort (§ 61 KWG). Alles im 21-Tage-Fenster!",
+   items:[
+    {ty:"choice",id:"sw54",l:"Stichwahl erforderlich?",opts:["Nein","Ja"]},
+    {ty:"check",l:"Amtswegige Wahlscheine gedruckt und versandt",showIf:{id:"sw54",eq:"Ja"}},
+    {ty:"check",l:"Druck/Versand im 21-Tage-Fenster getaktet",showIf:{id:"sw54",eq:"Ja"}}]}],
+ ergebnis:"Rechtzeitig versorgte Briefwähler, konsistentes Wahlschein-/Sperrvermerkswesen, ordnungsgemäß organisierte Briefwahlauszählung.",
+ qualitaet:["Keine Doppelstimmabgabe möglich (Sperrvermerk-Disziplin)","Jede Ausgabe/Rücknahme quittiert","Fristuhrzeiten je Wahlart korrekt kommuniziert","Rückweisungsquote der Wahlbriefe analysiert"]},
+
+av55:{id:"av55",b:"b5",nr:"AV 5.5",titel:"Wahlhelfer gewinnen, berufen, einsetzen",
+ ziel:"Vollständig besetzte, verpflichtete Wahlorgane mit belastbarer Reserve – jeder Vorstand muss jederzeit beschlussfähig planbar sein (§ 27 KWG: 3 bei Wahlhandlung, 5 bei Auszählung).",
+ ausloeser:["Projektstart (AV 5.1)","Helferbedarf aus Bezirksstruktur (AV 5.2) und Briefwahlmenge (AV 5.4)","Absagen/Ausfälle","Freistellungsanträge"],
+ grundlagen:["§ 8 Abs. 5, §§ 26–27 KWG","§§ 9–11, 49a BWahlG; §§ 6–10 BWO","Vault: Wahlhelfer-Management"],
+ beteiligte:["FB-Leitungen (Bedienstete)","Externe Behörden","Parteien/Wählergruppen","SG Personal","Kasse/FB 1.2"],
+ steps:[
+  {t:"1. Bedarf berechnen",
+   info:"Formel: (Urnenbezirke × Vorstandsgröße) + Briefwahl-/Auszählungsvorstände + Reserve 10–20 %. Kommunalwahl: Ratswahl-Auszählung oft am Folgetag durch eigene Auszählungsvorstände (Kumulieren/Panaschieren)!",
+   items:[
+    {ty:"calc",kind:"helfer",l:"Wahlhelfer-Bedarfsrechner"}]},
+  {t:"2. Gewinnungskaskade fahren",
+   info:"Reihenfolge: 1) Wahlhelferdatei (§ 26 Abs. 5 KWG erlaubt die Datei ausdrücklich), 2) eigene Bedienstete, 3) Behördenersuchen (§ 26 Abs. 6 KWG: Behörden MÜSSEN benennen), 4) öffentlicher Aufruf, 5) Parteienvorschläge für Beisitzer.",
+   items:[
+    {ty:"choice",l:"Genutzte Quellen:",multi:true,
+     opts:["Wahlhelferdatei angeschrieben","Städtische Bedienstete (mit FB-Leitungen)","Behördenersuchen gestellt","Öffentlicher Aufruf (Presse/Web/Vereine)","Parteien-/Wählergruppen-Vorschläge"]},
+    {ty:"check",l:"Ausschlüsse beachtet: keine Kandidaten/Vertrauenspersonen als Wahlorgane (§ 8 KWG; § 59 KWG bei Direktwahlen)"}]},
+  {t:"3. Berufen und verpflichten",
+   info:"Berufungsschreiben: Funktion, Wahlraum, Uhrzeit, Erfrischungsgeld, Schulungstermin, Absagekontakt. Verpflichtung auf Unparteilichkeit/Verschwiegenheit dokumentieren (kommunal: Vorsteher bis T−20; BTW: ab T−6).",
+   items:[
+    {ty:"check",l:"Einteilung nach Funktion/Bezirk erstellt (Mix erfahren/neu; Schriftführer gezielt besetzt)"},
+    {ty:"check",l:"Berufungsschreiben versandt"},
+    {ty:"check",l:"Verpflichtungen dokumentiert"}]},
+  {t:"4. Freistellungs-/Ablehnungsanträge entscheiden",
+   info:"Wichtige Gründe (Katalog § 11 BWahlG analog): Alter > 65, gesundheitliche Gründe, dringende berufliche Verhinderung, Fürsorgepflichten.",
+   warn:"Rechtsgrundlagen-Weiche: Unberechtigte Ablehnung ist bei BTW/EP eine OWi (§ 49a BWahlG), bei der Kommunalwahl NICHT (§ 74 KWG betrifft nur Nachwahlbefragungen) – Wahlart bestimmt den Bescheid!",
+   items:[
+    {ty:"choice",id:"owi55",l:"Wahlart des Falls:",opts:["Bundestagswahl/Europawahl → OWi möglich","Landtagswahl → LWahlG prüfen","Kommunalwahl → keine OWi, Ersatzgewinnung"]},
+    {ty:"check",l:"Wichtiger Grund geprüft (Nachweise), schriftliche Entscheidung erstellt"},
+    {ty:"check",l:"OWi-Verfahren eingeleitet (Anhörung, Abgabe an Bußgeldstelle)",showIf:{id:"owi55",eq:"Bundestagswahl/Europawahl → OWi möglich"}},
+    {ty:"check",l:"Ersatzberufung angestoßen"}]},
+  {t:"5. Einsatzsteuerung und Nachlauf",
+   info:"Erfrischungsgeld: BTW/EP 25 €/35 € (Wahlvorsteher) nach § 10 BWO/EuWO; kommunal eigene Sätze der Stadt (Beschlusslage dokumentieren). Auszahlung gegen Anwesenheitsnachweis.",
+   items:[
+    {ty:"check",l:"Erreichbarkeitsliste + Ersatzpool mit Rufbereitschaft für den Wahltag steht"},
+    {ty:"check",l:"Erfrischungsgeld ausgezahlt (Liste je Vorstand → Kasse → Wahlkostenstelle)"},
+    {ty:"check",l:"Dankschreiben versandt; Wahlhelferdatei aktualisiert (Einsätze, Widersprüche)"}]}],
+ ergebnis:"Vollständig besetzte, verpflichtete und geschulte Wahlorgane mit belastbarer Reserve; rechtssichere Freistellungs-/OWi-Praxis.",
+ qualitaet:["Jeder Vorstand jederzeit beschlussfähig planbar","Berufungen und Verpflichtungen lückenlos dokumentiert","Wahlhelferdatei DSGVO-konform (Unterrichtung, Widerspruch)","Erfrischungsgeld vollständig und korrekt abgerechnet"]},
+
+av56:{id:"av56",b:"b5",nr:"AV 5.6",titel:"Wahlvorstände schulen, Material erstellen",
+ ziel:"Handlungssichere Wahlvorstände und ein wiederverwendbarer Schulungsbaukasten – 100 % der Vorsteher/Stellvertreter geschult, messbare Fehlerreduktion gegenüber der Vorwahl.",
+ ausloeser:["Stehende Helfereinteilung (AV 5.5), ca. T−21 bis T−3","Rechtsänderungen","Hohe Fehlerquoten der Vorwahl (Rückweisungen, Niederschriftsmängel)"],
+ grundlagen:["Musterniederschriften/Erklärfilme der Bundeswahlleiterin","Rundschreiben Landeswahlleiter","§§ 26–47 KWG (Ablauf/Auszählung)"],
+ beteiligte:["Wahlvorstände","Pressestelle","ggf. Kreiswahlleitung (Muster)","IT (E-Learning)"],
+ steps:[
+  {t:"1. Bedarfsanalyse",
+   info:"Fehlerbild der Vorwahl auswerten: zurückgewiesene Wahlbriefe, korrigierte Schnellmeldungen, Niederschriftslücken → daraus die Schulungsschwerpunkte ableiten.",
+   items:[
+    {ty:"check",l:"Fehlerbild der Vorwahl ausgewertet"},
+    {ty:"choice",l:"Zielgruppen:",multi:true,opts:["Urnenvorstände","Briefwahlvorstände","Auszählungsvorstände (kommunal!)","Erstschulung","Auffrischung"]}]},
+  {t:"2. Unterlagen erstellen/aktualisieren",
+   info:"Eigene Schulungsunterlagen sind Teil der Stellenbeschreibung. Kern: Gültig/Ungültig-Beispielsammlung – bei Kommunalwahlen mit Kumulieren/Panaschieren-Fällen (§§ 37–38 KWG)!",
+   items:[
+    {ty:"choice",l:"Baukasten-Elemente aktuell:",multi:true,
+     opts:["Foliensatz je Wahlart","Funktions-Leitfäden (Vorsteher/Schriftführer)","Wahltagsablauf mit Uhrzeiten","Gültig/Ungültig-Beispielsammlung","Ausgefüllte Musterniederschrift","Schnellmelde-Anleitung","FAQ + Hotlineliste"]}]},
+  {t:"3. Schulungen durchführen",
+   info:"Mehrere Termin-Slots (auch abends); Praxisteil: Musterauszählung, Niederschrift ausfüllen, Schnellmeldung absetzen. Gesonderte Schulung für Briefwahlvorstände (Zulassung/Zurückweisung!).",
+   items:[
+    {ty:"check",l:"Pflichttermine für Vorsteher/Stellvertreter durchgeführt (Anwesenheitsliste)"},
+    {ty:"check",l:"Praxisteil absolviert (Musterauszählung, Niederschrift, Schnellmeldung)"},
+    {ty:"check",l:"Sonderschulung Briefwahlvorstände erfolgt"},
+    {ty:"range",l:"Schulungsquote Vorsteher/Stellvertreter",min:0,max:100,step:5,unit:" %",def:0}]},
+  {t:"4. Wissenssicherung am Wahltag + Feedback",
+   info:"Spickzettel (1 Seite je Kernprozess) in den Wahlkoffer; Hotline im Wahlamt besetzen; nach der Wahl Kurzfeedback einsammeln → Materialien fortschreiben (KVP wie AV 2.5).",
+   items:[
+    {ty:"check",l:"Spickzettel im Wahlkoffer; Hotline-Besetzung geplant"},
+    {ty:"check",l:"Feedbackbogen nach der Wahl eingesammelt und ausgewertet"}]}],
+ ergebnis:"Geschulte, handlungssichere Wahlvorstände; aktueller, wiederverwendbarer Schulungsbaukasten.",
+ qualitaet:["100 % der Vorsteher/Stellvertreter geschult (Nachweis)","Materialien wahlartspezifisch korrekt (Uhrzeiten! Stimmensystem!)","Messbare Fehlerreduktion gegenüber der Vorwahl"]},
+
+av57:{id:"av57",b:"b5",nr:"AV 5.7",titel:"Wahlvorschläge, Unterschriften, Wahlausschuss",
+ ziel:"Fristgerecht geprüfte und beschiedene Wahlvorschläge, fehlerfreie Stimmzettel und eine formsichere Wahlausschussarbeit – bei strikter Gleichbehandlung aller Wahlvorschlagsträger.",
+ ausloeser:["Bekanntmachung der Aufforderung (T−69)","Eingehende Wahlvorschläge bis T−48, 18 Uhr","Beratungsanfragen von Parteien/Wählergruppen/Einzelbewerbern"],
+ grundlagen:["§§ 15–25, § 8 KWG; KWO","Leitfäden des Landeswahlleiters für Wahlvorschlagsträger","Bei BTW/LTW/EP: nur Service-/Bescheinigungsfunktion"],
+ beteiligte:["Wahlleiter (OB) + Wahlausschuss","Vertrauenspersonen","Landeswahlleiter","Aufsichtsbehörde","Druckerei"],
+ steps:[
+  {t:"1. Beratung und Formulare (ab T−69)",
+   info:"Amtliche Formblätter kostenfrei ausgeben; Mindestzahl der Unterstützungsunterschriften öffentlich bekanntmachen; Befreiungen nach § 16 Abs. 3 KWG erläutern; neue Parteien: Anzeige beim LWL bis T−54.",
+   items:[
+    {ty:"check",l:"Formblätter bereit (Wahlvorschlag, Zustimmungserklärungen, Unterschriften, Aufstellungsniederschrift)"},
+    {ty:"check",l:"Mindest-Unterschriftenzahlen bekannt gemacht"},
+    {ty:"check",l:"Alle Träger gleich beraten – Beratungsinhalte dokumentiert"}]},
+  {t:"2. Bescheinigungen ausstellen",
+   info:"Wahlrechtsbescheinigungen für Unterzeichner + Wählbarkeitsbescheinigungen für Bewerber (§ 20 KWG) – Melderegisterabgleich, zügig (Fristnähe!), Doppelunterzeichnung kontrollieren.",
+   items:[
+    {ty:"check",l:"Bescheinigungsprozess läuft (zügig, dokumentiert)"},
+    {ty:"check",l:"Doppelunterzeichnungs-Kontrolle aktiv"}]},
+  {t:"3. Eingang und Vorprüfung der Wahlvorschläge",
+   info:"Eingangsvermerk mit Datum UND Uhrzeit (18-Uhr-Frist T−48!). Wesentliche Mängel sind nur bis T−48 heilbar, formale bis zur Zulassungsentscheidung – Mängel sofort der Vertrauensperson mitteilen.",
+   items:[
+    {ty:"check",l:"Eingänge mit Datum/Uhrzeit dokumentiert"},
+    {ty:"check",l:"Unverzügliche Vorprüfung: Form, Inhalt, Zustimmungserklärungen, Aufstellungsverfahren (Niederschrift), Unterschriftenzahl"},
+    {ty:"check",l:"Mängelmitteilungen an Vertrauenspersonen dokumentiert (mit Uhrzeit)"}]},
+  {t:"4. Wahlausschuss organisieren (Geschäftsstelle)",
+   info:"Öffentliche Zulassungssitzung T−47 bis T−41; bei Zurückweisung sofortige Unterrichtung von Aufsichtsbehörde und Vertrauensperson (Beschwerdeweg!). Danach: Listennummern nach § 24 KWG, Stimmzettel-Druckfreigabe im Vier-Augen-Prinzip.",
+   items:[
+    {ty:"check",l:"Beisitzer berufen, Einladung bis T−47, Sitzung fristgerecht (öffentlich, Niederschrift)"},
+    {ty:"check",l:"Vorlagen je Wahlvorschlag mit Prüfvermerk und Beschlussvorschlag erstellt"},
+    {ty:"check",l:"Nach Zulassung: Kennwörter an LWL, Listennummern festgesetzt"},
+    {ty:"check",l:"Stimmzettel korrekturgelesen (Namen, Reihenfolge, Vorkumulierungen!) und Druck freigegeben"},
+    {ty:"check",l:"Bekanntmachung der zugelassenen Wahlvorschläge bis T−12"}]},
+  {t:"5. Direktwahl-Besonderheiten (OB/Ortsvorsteher)",
+   info:"OB-Stellenausschreibung bis T−69; bei Eigenbewerbung des OB Wahlleiter-Wechsel nach § 59 KWG; nur ein Bewerber → Ja/Nein-Stimmzettel; keine gültige Bewerbung → Bekanntmachung T−12, dann Ratswahl nach § 53 GemO.",
+   items:[
+    {ty:"choice",id:"dw57",l:"Direktwahl betroffen?",opts:["Nein","Ja"]},
+    {ty:"check",l:"Wahlleiter-Vertretungsfrage geprüft (§ 59 KWG)",showIf:{id:"dw57",eq:"Ja"}},
+    {ty:"check",l:"Stimmzettel-Variante geklärt (mehrere Bewerber / Ja-Nein / keine Bewerbung)",showIf:{id:"dw57",eq:"Ja"}},
+    {ty:"check",l:"Zweite Ausschusssitzung (Ergebnis/Stichwahl) eingeplant",showIf:{id:"dw57",eq:"Ja"}}]}],
+ ergebnis:"Fristgerecht geprüfte und beschiedene Wahlvorschläge; gedruckte, fehlerfreie Stimmzettel; dokumentierte Ausschussarbeit.",
+ qualitaet:["Gleichbehandlung aller Wahlvorschlagsträger","Jede Mängelrüge mit Uhrzeit dokumentiert","Zulassungssitzung form- und fristgerecht","Stimmzettel ohne Beanstandung"]},
+
+av58:{id:"av58",b:"b5",nr:"AV 5.8",titel:"Wahltag durchführen, vorläufiges Ergebnis",
+ ziel:"Ordnungsgemäßer Wahltag ohne ungeklärte Vorfälle, plausibilisierte Schnellmeldungen und vollständige, gesicherte Niederschriften.",
+ ausloeser:["Wahltag / Abstimmungstag / Stichwahltag"],
+ grundlagen:["§§ 26–39 KWG, KWO","§§ 46–75 BWO","Schnellmelde-Anweisungen Kreis-/Landeswahlleitung"],
+ beteiligte:["Wahl-/Briefwahl-/Auszählungsvorstände","Wahlleiter (OB)","Kreis-/Landeswahlleitung","IT","Pressestelle","Ordnungsamt/Polizei","Bauhof"],
+ steps:[
+  {t:"1. Vorabend/Morgen: Startklarmachen",
+   info:"Materialübergabe an alle Wahlvorsteher VOR 8 Uhr (quittiert); Wahlamts-Lagezentrum besetzen: Hotline, Springer, Ersatzmaterial, Pressekontakt.",
+   items:[
+    {ty:"check",l:"Alle Wahlkoffer quittiert übergeben (vor 8 Uhr)"},
+    {ty:"check",l:"Aushang je Wahlraum (Ort/Zeit der Auszählung) erfolgt"},
+    {ty:"check",l:"Funktionstest Erfassungssoftware + Meldewege durchgeführt"},
+    {ty:"check",l:"Lagezentrum besetzt (Hotline, Springer, Ersatzmaterial)"}]},
+  {t:"2. Wahlzeit 8–18 Uhr: Lage führen",
+   info:"Anlaufkontrolle: Beschlussfähigkeit aller Vorstände bis 8 Uhr (Ersatz aus Reserve!). Verbote überwachen: keine Wahlpropaganda/Unterschriftensammlung am Gebäude, keine Veröffentlichung von Nachwahlbefragungen vor 18 Uhr (§ 35 KWG – OWi!).",
+   items:[
+    {ty:"check",l:"Beschlussfähigkeit aller Vorstände um 8 Uhr bestätigt"},
+    {ty:"check",l:"Zwischenstände Wahlbeteiligung erhoben und an Wahlleiter/Presse gegeben"},
+    {ty:"check",l:"Hotline-Einzelfälle entschieden und im Lageprotokoll dokumentiert",help:"Wahlschein-Probleme, Zurückweisungen, Hilfspersonen, Ordnung im Wahlraum"},
+    {ty:"check",l:"Briefwahllogistik gelaufen: Übergaben ab 10 Uhr, 15-Uhr-Sonderanträge, 18-Uhr-Schluss dokumentiert"}]},
+  {t:"3. Ab 18 Uhr: Auszählung und Schnellmeldungen",
+   info:"Meldekette: Wahlvorstand → Wahlamt (Erfassung + Plausibilisierung: Summen, Wähler vs. Wahlberechtigte, Vergleich Vorwahl) → Kreis-/Landeswahlleitung. Korrekturen nur dokumentiert und vom Vorstand bestätigt!",
+   warn:"Kommunalwahl: Am Wahlabend zuerst die einfachen Wahlen (EP/Direktwahl) auszählen; Ratswahl (Kumulieren/Panaschieren) ggf. ab Folgetag durch Auszählungsvorstände – Versiegelung und Verwahrungskette über Nacht strikt einhalten!",
+   items:[
+    {ty:"check",l:"Schnellmeldungen erfasst und plausibilisiert (Vier-Augen)"},
+    {ty:"check",l:"Auszählreihenfolge bei verbundenen Wahlen eingehalten"},
+    {ty:"check",l:"Vorläufiges Ergebnis zusammengestellt; OB/Presse informiert"},
+    {ty:"check",l:"Besondere Vorkommnisse im Lageprotokoll erfasst"}]},
+  {t:"4. Abschluss Wahltag",
+   info:"Erste Sichtung der Niederschriften auf Vollständigkeit – fehlende Unterschriften SOFORT nachfassen, solange die Vorstände greifbar sind.",
+   items:[
+    {ty:"check",l:"Wahlkoffer/Urnen/Niederschriften gegen Quittung zurückgenommen"},
+    {ty:"check",l:"Niederschriften auf Vollständigkeit gesichtet (Unterschriften!)"},
+    {ty:"check",l:"Alle Unterlagen sicher verwahrt (versiegelt)"}]}],
+ ergebnis:"Ordnungsgemäßer Wahltag ohne ungeklärte Vorfälle; plausibilisiertes vorläufiges Ergebnis; vollständige, gesicherte Niederschriften.",
+ qualitaet:["Alle Vorstände jederzeit beschlussfähig","Jede Hotline-Entscheidung mit Rechtsgrundlage im Lageprotokoll","Schnellmeldungen ohne größere Nachkorrekturen","Verwahrungskette lückenlos"]},
+
+av59:{id:"av59",b:"b5",nr:"AV 5.9",titel:"Endgültiges Ergebnis, Wahlprüfung, Nachbereitung",
+ ziel:"Bestandskräftiges endgültiges Ergebnis, vollzogene Bekanntmachungen, abgeschlossene Abrechnung/Statistik/Archivierung – ohne formale Angriffsflächen für die Wahlprüfung.",
+ ausloeser:["Abgeschlossene Auszählung (AV 5.8)","Einsprüche","Stichwahl-Erfordernis","Abrechnungs- und Statistikpflichten"],
+ grundlagen:["§§ 40–52, 72–73 KWG; KWO","§§ 76–90 BWO","Sainte-Laguë/Sperrklausel 3,03 %/Mehrheitsklausel (§§ 41 ff. KWG)"],
+ beteiligte:["Wahlausschuss","OB","Stadtrat (Konstituierung)","Kreis-/Landeswahlleitung","Statistisches Landesamt","FB 1.2","GPA/Rechnungsprüfung"],
+ steps:[
+  {t:"1. Niederschriften prüfen, Ergebnis feststellen",
+   info:"Öffentliche Wahlausschusssitzung: Prüfung der ordnungsgemäßen Durchführung, Feststellung des endgültigen Ergebnisses, Sitzverteilung (Sainte-Laguë; Sperrklausel 1/33 = 3,03 %; Mehrheitsklausel), Losentscheide. Bei BTW/LTW/EP: Unterlagen fristgerecht an den Kreiswahlleiter (+1 Tag Schnellweiterleitung, +5 Tage Zusammenstellungen).",
+   items:[
+    {ty:"check",l:"Alle Niederschriften rechnerisch und formal geprüft (inkl. Beschlüsse über beanstandete Stimmen)"},
+    {ty:"check",l:"Wahlausschusssitzung form- und fristgerecht (Ladung, Bekanntmachung, Öffentlichkeit, Niederschrift)"},
+    {ty:"check",l:"Sitzverteilung/Feststellung vollzogen bzw. Unterlagen an Kreiswahlleiter weitergeleitet"}]},
+  {t:"2. Bekanntmachen und benachrichtigen",
+   info:"Die öffentliche Bekanntmachung des Ergebnisses (§ 47 KWG: Sitze je Vorschlag, Namen, Kennwort) startet die ZWEIWÖCHIGE Einspruchsfrist. Stichwahl: unverzüglich Tag + Namen bekanntmachen, 21-Tage-Fenster.",
+   items:[
+    {ty:"check",l:"Gewählte benachrichtigt (Annahmeerklärung mit Frist; Hinweis auf Unvereinbarkeiten § 5 KWG)"},
+    {ty:"check",l:"Ergebnis öffentlich bekannt gemacht"},
+    {ty:"choice",id:"sw59",l:"Stichwahl nötig?",opts:["Nein","Ja → AV 5.4/5.8 im 21-Tage-Fenster"]}]},
+  {t:"3. Wahlprüfung / Einsprüche (§§ 48–52 KWG)",
+   info:"Einsprüche binnen 2 Wochen nach Bekanntmachung. Sachverhalt aufklären (Niederschriften, Zeugen), Vorlage für die Entscheidungsinstanz, Rechtswege überwachen; ggf. Wiederholungswahl (Direktwahlen binnen 3 Monaten).",
+   items:[
+    {ty:"num",l:"Zahl der Einsprüche"},
+    {ty:"check",l:"Einsprüche dokumentiert, aufgeklärt, Entscheidungsvorlage erstellt (falls vorhanden)"}]},
+  {t:"4. Konstituierung unterstützen",
+   info:"Zuarbeit für die konstituierende Ratssitzung: Mandatsliste, Basisdaten für Ausschussbesetzung (Sainte-Laguë-Logik).",
+   items:[
+    {ty:"check",l:"Mandatsliste und Ausschussbesetzungs-Basisdaten geliefert"}]},
+  {t:"5. Abrechnung, Statistik, Archiv, Lessons Learned",
+   info:"Kosten: Erfrischungsgelder/Sachkosten buchen, Erstattungen abrufen (§ 72 KWG pauschal; § 50 BWahlG/§ 25 EuWG über das Land) – GPA-feste Nachweise. Statistik nach § 73 KWG inkl. PARITÄTSSTATISTIK. Vernichtungsfristen: Benachrichtigungen sofort, übrige Unterlagen 6 Monate/60-Tage-Regel (§ 90 BWO bzw. KWO).",
+   items:[
+    {ty:"check",l:"Kosten gebucht, Erstattungen abgerufen"},
+    {ty:"check",l:"Statistikmeldungen inkl. Paritätsstatistik ans Statistische Landesamt"},
+    {ty:"check",l:"Interne Wahlanalyse erstellt (Beteiligung je Bezirk, Briefwahlquote → Input AV 5.2)"},
+    {ty:"check",l:"Aufbewahrung/Vernichtung terminiert (Protokolle!)"},
+    {ty:"check",l:"Nachbereitungsbericht (Lessons Learned je AV) erstellt → Start des nächsten AV 5.1"}]}],
+ ergebnis:"Bestandskräftiges endgültiges Ergebnis; vollzogene Bekanntmachungen und Benachrichtigungen; abgeschlossene Abrechnung, Statistik und Archivierung; Nachbereitungsbericht.",
+ qualitaet:["Ergebnisfeststellung ohne formale Angriffsflächen","Einspruchsfristen-Management lückenlos","Erstattungen vollständig abgerufen","Bericht fortschreibungsfähig"]},
+
+av510:{id:"av510",b:"b5",nr:"AV 5.10",titel:"Nachrückverfahren und Mandatsänderungen",
+ ziel:"Rechtssicher vollzogener Mandatswechsel: Ersatzperson exakt aus dem festgestellten Ergebnis abgeleitet, Wählbarkeit und Unvereinbarkeiten geprüft, alles dokumentiert.",
+ ausloeser:["Ausscheiden eines Rats-/Ortsbeiratsmitglieds (Tod, Verzicht, Wegzug, Unvereinbarkeit, Verlust der Wählbarkeit)","Mitteilung von Fraktion oder Meldebehörde"],
+ grundlagen:["§§ 44–46 KWG (Ersatzpersonen – aktuelle Fassung prüfen!)","§ 5 KWG (Unvereinbarkeit)","GemO (Mandatsrecht)","Festgestelltes Wahlergebnis (AV 5.9)"],
+ beteiligte:["Wahlleiter","Ratsbüro/Sitzungsdienst","Fraktionen","Meldebehörde","Betroffene"],
+ steps:[
+  {t:"1. Ausscheiden feststellen",
+   info:"Anlass sauber belegen: Verzichtserklärung schriftlich, Sterbeurkunde, Melderegisterauszug bei Wegzug (3-Monats-Wohnsitz/Wählbarkeit!). Wirksamkeitszeitpunkt klären.",
+   items:[
+    {ty:"choice",l:"Grund des Ausscheidens:",opts:["Verzicht","Tod","Wegzug","Unvereinbarkeit (§ 5 KWG)","Verlust der Wählbarkeit"]},
+    {ty:"check",l:"Nachweis liegt vor; Wirksamkeitszeitpunkt geklärt"}]},
+  {t:"2. Ersatzperson ermitteln",
+   info:"Nächste Person DESSELBEN Wahlvorschlags in der Reihenfolge der persönlichen Stimmenzahlen – bei Wahlbereichen die richtige Zuordnung beachten! Liste erschöpft → Folgen nach KWG prüfen.",
+   items:[
+    {ty:"text",l:"Ermittelte Ersatzperson (aus dem festgestellten Ergebnis)"},
+    {ty:"check",l:"Reihenfolge exakt aus dem festgestellten Ergebnis abgeleitet (dokumentiert)"}]},
+  {t:"3. Wählbarkeit prüfen",
+   info:"Wahlrecht/Wählbarkeit fortbestehend? Unvereinbarkeiten nach § 5 KWG (Bedienstete der Stadt!)? Ggf. Hinderungsgrund-Verfahren.",
+   items:[
+    {ty:"check",l:"Wählbarkeit geprüft (Wohnsitz, Ausschlussgründe)"},
+    {ty:"check",l:"Unvereinbarkeiten geprüft (§ 5 KWG)"}]},
+  {t:"4. Annahme einholen",
+   info:"Benachrichtigung mit Annahme-/Ablehnungsfrist nach KWG/KWO; bei Ablehnung: nächste Ersatzperson.",
+   items:[
+    {ty:"check",l:"Benachrichtigung mit Frist versandt"},
+    {ty:"choice",l:"Annahme:",opts:["Angenommen","Abgelehnt → nächste Ersatzperson (Schritt 2 wiederholen)"]}]},
+  {t:"5. Feststellen, mitteilen, dokumentieren",
+   info:"Förmliche Feststellung des Nachrückens; Mitteilungen an Ratsbüro, Fraktion, Betroffene; öffentliche Bekanntmachung; Verpflichtung in der nächsten Ratssitzung anstoßen.",
+   items:[
+    {ty:"check",l:"Förmliche Feststellung erfolgt"},
+    {ty:"check",l:"Mitteilungen + öffentliche Bekanntmachung erledigt"},
+    {ty:"check",l:"Mandatslisten/Sitzungsdienst aktualisiert; Vorgang beim Wahlergebnis-Aktenbestand dokumentiert"}]}],
+ ergebnis:"Rechtssicher vollzogener Mandatswechsel mit vollständiger Dokumentation.",
+ qualitaet:["Reihenfolge exakt aus dem festgestellten Ergebnis","Wählbarkeits-/Unvereinbarkeitsprüfung aktenkundig","Fristen der Annahmeerklärung überwacht"]},
+
+av511:{id:"av511",b:"b5",nr:"AV 5.11",titel:"Bürgerbegehren begleiten, Bürgerentscheid durchführen",
+ ziel:"Rechtssicher geprüftes Begehren und ordnungsgemäß durchgeführter Bürgerentscheid – gerichtsfest dokumentiert (Kommunalverfassungsstreit antizipieren).",
+ ausloeser:["Ankündigung/Einreichung eines Bürgerbegehrens","Ratsbeschluss über ein Ratsreferendum (§ 17a Abs. 1 S. 2 GemO)","Zugelassenes Begehren → Terminierung"],
+ grundlagen:["§ 17a GemO (Stand 2015-Reform)","§§ 67–70 KWG","VV zu § 17a GemO (Kommunalbrevier)","Vault: Bürgerbegehren und Bürgerentscheid RLP"],
+ beteiligte:["Vertretungsberechtigte des Begehrens","Stadtrat","OB","Betroffener Fachbereich","Stabsstelle Recht","Kommunalaufsicht","Kämmerei","Pressestelle"],
+ steps:[
+  {t:"1. Frühphase: beraten und vorbereiten",
+   info:"Neutrale Verfahrensberatung ist zulässig und sinnvoll (Ja/Nein-Frage, Fristen, Quorum, Form). Kassatorische Begehren: 4-Monats-Frist ab Ratsbeschluss! Kein Vollzugsstopp kraft Gesetzes – aber Eskalationsrisiko (einstweilige Anordnung) mit der Leitung besprechen.",
+   items:[
+    {ty:"choice",l:"Typ des Begehrens:",opts:["Initiierend (keine Frist)","Kassatorisch (4 Monate ab Ratsbeschluss!)","Ratsreferendum"]},
+    {ty:"check",l:"Kontakt mit Vertretungsberechtigten aufgenommen; neutral beraten (dokumentiert)"},
+    {ty:"check",l:"OB/Büroleiter + betroffener Fachbereich informiert; Vollzugsfrage geklärt"},
+    {ty:"date",l:"Bei kassatorischem Begehren: Datum des angegriffenen Ratsbeschlusses"}]},
+  {t:"2. Eingang und Unterschriftenprüfung",
+   info:"Eingangsdatum = Fristwahrung! Prüfung nach § 17a Abs. 4: Wahlberechtigung jedes Unterzeichners (Melderegister), zweifelsfreie Identifizierbarkeit, Doppelungen, voller Wortlaut auf jeder Liste. Der Rechner ermittelt das Quorum.",
+   items:[
+    {ty:"check",l:"Eingang dokumentiert; Listen gesichert (Zugriff nur Prüfteam)"},
+    {ty:"calc",kind:"quorum",l:"Quorums-Rechner (10 % Unterschriften / 15 % Zustimmung)"},
+    {ty:"num",l:"Gültige Unterschriften (gezählt)"},
+    {ty:"check",l:"Prüfvermerk mit Zählwerk erstellt (gültig/ungültig nach Grund)"}]},
+  {t:"3. Zulässigkeitsprüfung und Ratsentscheidung",
+   info:"Prüfschema: Gemeindeangelegenheit? Negativkatalog § 17a Abs. 2 (u. a. Bauleitpläne, Haushaltssatzung, innere Organisation)? Frist? Form (Ja/Nein-Frage, Begründung, ≤ 3 Vertreter)? 3-Jahres-Sperrfrist? – Seit 2015: KEIN Kostendeckungsvorschlag mehr, stattdessen Kostenschätzung der VERWALTUNG (mit Aufsichtsbehörde abgestimmt, Vertreter vorher anhören).",
+   items:[
+    {ty:"choice",l:"Negativkatalog verletzt?",opts:["Nein","Ja → unzulässig (Punkt benennen)"]},
+    {ty:"check",l:"Form geprüft (Ja/Nein-Frage, Begründung, Vertretungsberechtigte, Wortlaut auf Listen)"},
+    {ty:"check",l:"3-Jahres-Sperrfrist geprüft"},
+    {ty:"check",l:"Kostenschätzung der Verwaltung erstellt und mit Aufsichtsbehörde abgestimmt; Vertreter angehört"},
+    {ty:"check",l:"Beschlussvorlage (reine Rechtsfrage!) erstellt; Anhörung der Vertretungsberechtigten im Rat organisiert"},
+    {ty:"choice",id:"rat511",l:"Ratsentscheidung:",opts:["Zugelassen → Bürgerentscheid","Maßnahme übernommen/Kompromiss → Entscheid entfällt (§ 17a Abs. 5)","Nicht zugelassen → Bescheid mit RB-Belehrung"]}]},
+  {t:"4. Bürgerentscheid organisieren (bei Zulassung)",
+   info:"Wie eine Direktwahl (§ 67 KWG): Verzeichnis, Benachrichtigung, Briefabstimmung, Stimmbezirke, Vorstände, Ja/Nein-Stimmzettel ohne Zusätze. Bekanntmachung nach § 68 Abs. 2 KWG AUSGEWOGEN: Begründung der Antragsteller UND Auffassungen der Gemeindeorgane (inkl. Minderheiten) + Kostenschätzung.",
+   items:[
+    {ty:"check",l:"Terminvorschlag für Ratsbeschluss erstellt (unverzüglich; Sonntag; Kopplung mit Wahltag nur mit Zustimmung der Aufsichtsbehörde)",showIf:{id:"rat511",eq:"Zugelassen → Bürgerentscheid"}},
+    {ty:"check",l:"Ausgewogene Bekanntmachung erstellt und abgestimmt",showIf:{id:"rat511",eq:"Zugelassen → Bürgerentscheid"}},
+    {ty:"check",l:"Wahlorganisation aufgesetzt (AV 5.2–5.6, 5.8 sinngemäß)",showIf:{id:"rat511",eq:"Zugelassen → Bürgerentscheid"}},
+    {ty:"check",l:"Bei mehreren Entscheiden am selben Tag: Stichfrage vom Rat beschlossen",showIf:{id:"rat511",eq:"Zugelassen → Bürgerentscheid"}}]},
+  {t:"5. Ergebnis und Vollzug",
+   info:"Erfolgsprüfung: Mehrheit der gültigen Stimmen UND ≥ 15 % der Stimmberechtigten. Erfolgreich = steht einem Ratsbeschluss gleich, 3 Jahre Bindung. Quorum verfehlt → der Rat entscheidet.",
+   items:[
+    {ty:"choice",l:"Ausgang:",opts:["Erfolgreich (Mehrheit + 15 %-Quorum)","Mehrheit ohne Quorum → Rat entscheidet","Abgelehnt"]},
+    {ty:"check",l:"Wahlausschuss-Feststellung, Unterrichtung des Rats, Bekanntmachung erfolgt (§ 70 KWG)"},
+    {ty:"check",l:"Bindungs-/Sperrfristen-Register fortgeschrieben (3 Jahre)"},
+    {ty:"check",l:"Vollzugscontrolling beim Fachbereich angestoßen (bei Erfolg)"}]}],
+ ergebnis:"Rechtssicher geprüftes Begehren; ordnungsgemäß durchgeführter Bürgerentscheid; dokumentierte Bindungs- und Sperrfristen.",
+ qualitaet:["Zulässigkeitsprüfung vollständig und neutral (reine Rechtsfrage)","Bekanntmachung ausgewogen (beide Seiten + Kostenschätzung)","Verfahren gerichtsfest dokumentiert","Fristen (4 Monate/3 Jahre/15 %) korrekt angewandt"]},
+
+av512:{id:"av512",b:"b5",nr:"AV 5.12",titel:"Volksbegehren: Eintragungsverfahren durchführen",
+ ziel:"Ordnungsgemäßes örtliches Eintragungsverfahren (Amtseintragung + freie Sammlung) mit fristgerechter, korrekter Ergebnisübermittlung an den Landeswahlleiter.",
+ ausloeser:["Bekanntmachung des Landeswahlleiters über die Zulassung eines Volksbegehrens (2-Monats-Eintragungsfrist!)","Bescheinigungsanträge einer Volksinitiative (30.000er-Quorum)","Anordnung eines Volksentscheids"],
+ grundlagen:["Art. 107–115a LV RLP","LWahlG §§ 60a ff.","Rundschreiben des Landeswahlleiters","Vault: Volksbegehren, Volksinitiative und Volksentscheid RLP"],
+ beteiligte:["Landeswahlleiter","Kreisverwaltung","Vertrauensleute des Begehrens","Bürgerbüro/Meldebehörde"],
+ steps:[
+  {t:"1. Rundschreiben umsetzen",
+   info:"Keine eigenen Formulare erfinden – amtliche Muster des Landeswahlleiters verwenden! Vorgaben (Zeitraum, Meldewege) in einen Kurzprojektplan übersetzen.",
+   items:[
+    {ty:"check",l:"Rundschreiben ausgewertet, Kurzprojektplan erstellt, Personal eingeteilt"}]},
+  {t:"2. Amtseintragung organisieren",
+   info:"Eintragungsräume + bürgerfreundliche Öffnungszeiten festlegen, ÖFFENTLICH bekanntmachen und ausschildern. Identitäts- und Stimmberechtigungsprüfung an Ort und Stelle (Deutsche, 18+, 3 Monate RLP).",
+   items:[
+    {ty:"check",l:"Eintragungsräume/-zeiten festgelegt, bekannt gemacht, ausgeschildert"},
+    {ty:"check",l:"Eintragungslisten geführt; Ausweiskontrolle läuft"},
+    {ty:"check",l:"Tägliche Verwahrung und Zählung organisiert"}]},
+  {t:"3. Frei gesammelte Listen bescheinigen",
+   info:"Seit der Erleichterungsreform 2015 auch freie Sammlung auf Straßen/Plätzen. Die Wohnsitzgemeinde bescheinigt die Stimmberechtigung (Melderegisterabgleich) – zügig, die Initiatoren stehen unter Fristdruck.",
+   items:[
+    {ty:"check",l:"Stimmberechtigung geprüft, Mehrfach-/ungültige Eintragungen gekennzeichnet"},
+    {ty:"check",l:"Bescheinigungen zügig ausgestellt (Bearbeitungsstand dokumentiert)"}]},
+  {t:"4. Fristende und Übermittlung",
+   info:"Nur Eintragungen innerhalb der 2-Monats-Frist zählen. Zusammenstellung gültig/ungültig fristgerecht an Kreis-/Landeswahlleiter; Datenschutz: Zweckbindung, keine Einsicht Dritter, Aufbewahrung nach Vorgabe.",
+   items:[
+    {ty:"check",l:"Eintragungsschluss dokumentiert"},
+    {ty:"check",l:"Ergebnis zusammengestellt und fristgerecht übermittelt"},
+    {ty:"check",l:"Listen nach Vorgabe aufbewahrt/abgegeben"}]},
+  {t:"5. Volksentscheid (falls angeordnet)",
+   info:"Abstimmung wie eine Landtagswahl organisieren: Abstimmungsbezirke, -vorstände, Verzeichnis, Briefabstimmung, Schnellmeldung → AV 5.2–5.6, 5.8, 5.9 sinngemäß mit LWahlG/LWO-Fristen.",
+   items:[
+    {ty:"choice",l:"Volksentscheid angeordnet?",opts:["Nein","Ja → Wahlorganisation nach LTW-Systematik aufsetzen"]}]}],
+ ergebnis:"Ordnungsgemäßes örtliches Eintragungsverfahren mit fristgerechter, korrekter Ergebnisübermittlung.",
+ qualitaet:["Nur amtliche Muster verwendet","Jede Bescheinigung nachvollziehbar","Öffnungszeiten und Bekanntmachung beanstandungsfrei","Übermittlungsfristen gehalten"]},
+
+av513:{id:"av513",b:"b5",nr:"AV 5.13",titel:"Laufende Wahlamtsleitung (zwischen den Wahlen)",
+ ziel:"Dauerhaft einsatzbereites Wahlamt: SG-Führung mit Dienst- und Fachaufsicht, aktuelles Regel- und Formularwerk, gepflegte Infrastruktur, verlässlicher Gremienservice.",
+ ausloeser:["Daueraufgabe (Stellenbeschreibung Ziff. 1, 7, 8)","Anfragen aus Politik/Verwaltung","Rechtsänderungen","Statistikpflichten","OB-Vakanz / vorgezogene Neuwahl / Nachwahl"],
+ grundlagen:["Stellenbeschreibung Wahlen","§ 73 KWG (Statistik/Paritätsstatistik)","Handbuch Bereiche 1–4 (Führungs-/Organisationsmethodik)"],
+ beteiligte:["Wahlamts-Team","Büroleiter/OB","Ratsbüro","Fachbereiche","Landes-/Kreiswahlleitung","Statistisches Landesamt"],
+ steps:[
+  {t:"1. SG-Führung",
+   info:"Durchgängige Besetzung aller Funktionsbereiche sicherstellen; Koordination über Arbeitshinweise, Rücksprachen, regelmäßige Besprechungen und fachliche Kontrolle.",
+   items:[
+    {ty:"check",l:"Besetzung/Vertretungen aller Funktionsbereiche aktuell"},
+    {ty:"check",l:"Arbeitshinweise/Checklisten aktuell; Besprechungsrhythmus läuft"},
+    {ty:"check",l:"Einarbeitung/Schulung eigener Mitarbeiter organisiert"}]},
+  {t:"2. Wissens- und Formularmanagement",
+   info:"Nach jeder Wahl/Rechtsänderung: Muster (Bescheide, Bekanntmachungen, Unterschriftenlisten, Berufungsschreiben, Niederschriften) fortschreiben; zentrale Ablage pflegen.",
+   items:[
+    {ty:"check",l:"Muster-/Formularbestand fortgeschrieben"},
+    {ty:"check",l:"Handbuch Arbeitsvorgänge Wahlen aktualisiert"}]},
+  {t:"3. Rechts-Monitoring",
+   info:"Änderungen KWG/KWO/BWahlG/BWO/EuWG/LWahlG verfolgen (Newsletter Landeswahlleiter/Bundeswahlleiterin, GStB) und in Prozesse/Formulare übersetzen.",
+   items:[
+    {ty:"check",l:"Rechtsänderungen gesichtet und bewertet"},
+    {ty:"check",l:"Auswirkungen umgesetzt; Leitung informiert"}]},
+  {t:"4. Wahlhelferdatei und Infrastruktur pflegen",
+   info:"Datei aktuell halten (Zu-/Abgänge, Widersprüche – DSGVO!); Materialbestand inventarisieren; Wahlfachverfahren-Releases testen.",
+   items:[
+    {ty:"check",l:"Wahlhelferdatei gepflegt"},
+    {ty:"check",l:"Material inventarisiert (Urnen, Kabinen, Beschilderung)"},
+    {ty:"check",l:"Fachverfahrens-Releases getestet"}]},
+  {t:"5. Statistik",
+   info:"Meldungen nach § 73 KWG inkl. Paritätsstatistik; interne Auswertungen (Beteiligung, Briefwahltrend) als Planungsgrundlage für AV 5.2/5.5.",
+   items:[
+    {ty:"check",l:"Statistikmeldungen fristgerecht erledigt"},
+    {ty:"check",l:"Interne Auswertungen aktualisiert"}]},
+  {t:"6. Gremien- und Beratungsdienst",
+   info:"Vorlagen, Stellungnahmen und Entscheidungshilfen für Rat/Ausschüsse/Leitung (z. B. Wahlbereichs-Beschluss, Bürgerentscheid-Termine, Erfrischungsgeld-Sätze); Anfragen aus Politik und Verwaltung beantworten.",
+   items:[
+    {ty:"check",l:"Anstehende Vorlagen/Stellungnahmen erledigt"},
+    {ty:"check",l:"Anfragen beantwortet (dokumentiert)"}]},
+  {t:"7. Zwischenwahl-Ereignisse steuern",
+   info:"Vorgezogene Neuwahlen (verkürzte Kalender!), Nachwahlen/Wiederholungswahlen, OB-Vakanz (Ausschreibung T−69, Termin durch Aufsichtsbehörde), Bürgerbegehren (→ AV 5.11).",
+   items:[
+    {ty:"choice",l:"Aktuelles Ereignis:",opts:["Keines","Vorgezogene Neuwahl","Nachwahl/Wiederholungswahl","OB-Vakanz","Bürgerbegehren → AV 5.11"]},
+    {ty:"check",l:"Jahres-Check durchgeführt: Wahlamt auch bei kurzfristiger Wahlansetzung startklar (Checklisten-Test)"}]}],
+ ergebnis:"Dauerhaft einsatzbereites Wahlamt, aktuelles Regel- und Formularwerk, verlässlicher Gremienservice.",
+ qualitaet:["Auch bei kurzfristiger Wahlansetzung startklar (Jahres-Test)","Formulare ohne veraltete Rechtsstände","Statistikpflichten fristgerecht"]},
+
+};
+
+/* ---------- Pure Rechenfunktionen (auch für Tests) ---------- */
+function fmtNum(x,dec){if(x===null||x===undefined||isNaN(x))return"–";
+  return x.toLocaleString("de-DE",{minimumFractionDigits:dec??0,maximumFractionDigits:dec??2});}
+function calcPBE(rows,vz,jazStd){ /* rows:[{name,menge,mbz}] vz:% jaz:Std/Jahr */
+  const jazMin=jazStd*60; let sumMin=0; const det=rows.map(r=>{
+    const m=(Number(r.menge)||0)*(Number(r.mbz)||0)*(1+(Number(vz)||0)/100);
+    sumMin+=m; return {name:r.name||"Aufgabe",min:m,vza:jazMin>0?m/jazMin:0};});
+  return {rows:det,sumMin:sumMin,sumStd:sumMin/60,vza:jazMin>0?sumMin/jazMin:0};}
+function calcKW(a){ /* {inv,kost,erl,rest,jahre,zins} → Kapitalwert */
+  const i=(Number(a.zins)||0)/100, n=Number(a.jahre)||1;
+  let kw=-(Number(a.inv)||0);
+  for(let t=1;t<=n;t++){kw+=((Number(a.erl)||0)-(Number(a.kost)||0))/Math.pow(1+i,t);}
+  kw+=(Number(a.rest)||0)/Math.pow(1+i,n); return kw;}
+function calcQuorumBB(wahlber){const q=Math.ceil((Number(wahlber)||0)*0.10);
+  return {roh:q,mass:Math.min(q,3000),cap:q>3000};}
+function calcQuorumBE(stimmber){return Math.ceil((Number(stimmber)||0)*0.15);}
+function calcHelfer(u,ug,b,bg,res){const basis=(Number(u)||0)*(Number(ug)||0)+(Number(b)||0)*(Number(bg)||0);
+  return {basis:basis,reserve:Math.ceil(basis*(Number(res)||0)/100),gesamt:basis+Math.ceil(basis*(Number(res)||0)/100)};}
+function addDays(iso,d){const dt=new Date(iso+"T12:00:00");dt.setDate(dt.getDate()+d);return dt;}
+function fmtDate(dt){const wd=["So","Mo","Di","Mi","Do","Fr","Sa"][dt.getDay()];
+  return wd+", "+String(dt.getDate()).padStart(2,"0")+"."+String(dt.getMonth()+1).padStart(2,"0")+"."+dt.getFullYear();}
+const FRISTEN={
+ kw:[[-69,"Letzter Tag: Bekanntmachung Aufforderung zur Einreichung von Wahlvorschlägen; bei Direktwahl: Ausschreibung OB-Stelle","§§ 15 ff. KWG",1],
+  [-62,"Letzter Tag: Bekanntmachung Eintragungs-Aufforderung meldepflichtbefreite EU-Bürger","KWO",0],
+  [-54,"Letzter Tag: Beteiligungsanzeige neuer Parteien beim Landeswahlleiter","§ 16 Abs. 4 KWG",0],
+  [-48,"18 Uhr: Ende Einreichungsfrist Wahlvorschläge + Behebung wesentlicher Mängel","KWG",1],
+  [-47,"Berufung Wahlausschuss-Beisitzer + Einladung; frühester Tag Zulassungssitzung","§ 8 KWG",0],
+  [-42,"Stichtag Eintragung ins Wählerverzeichnis","KWO",1],
+  [-41,"Letzter Tag: Zulassungssitzung des Wahlausschusses; danach Stimmzettel-Druckfreigabe","KWG",1],
+  [-37,"12 Uhr: Ende Antragsfrist Eintragung meldepflichtbefreiter EU-Bürger","KWO",0],
+  [-34,"Frühester Tag: Ausgabe Wahlscheine/Briefwahlunterlagen","KWO",0],
+  [-24,"Letzter Tag: Bekanntmachung Einsichtnahme Wählerverzeichnis","§ 12 KWG",0],
+  [-21,"Letzter Tag: Wahlbenachrichtigungen versandt","§ 11 Abs. 2 KWG",1],
+  [-20,"Beginn Einsichts-/Einwendungsfrist; letzte Bestellung+Verpflichtung Wahlvorsteher","§§ 12–13 KWG",0],
+  [-16,"Ende Einsichts- und Einwendungsfrist Wählerverzeichnis","§ 12 KWG",1],
+  [-13,"Letzter Tag: Unterrichtung Anstalts-/Einrichtungsleitungen","KWO",0],
+  [-12,"Letzter Tag: Bekanntmachung der zugelassenen Wahlvorschläge (bzw. Mehrheitswahl)","KWG",1],
+  [-10,"Letzter Tag: Entscheidung über Einwendungen gegen das Wählerverzeichnis","§ 13 KWG",0],
+  [-6,"Letzter Tag: Wahlbekanntmachung (Wahlzeit, Wahlräume) + Ort/Zeit Auszählung","KWO",1],
+  [-3,"Einladung Wahlausschuss (Ergebnisfeststellung)","§ 8 KWG",0],
+  [-2,"18 Uhr: Ende Wahlscheinanträge; Abschluss Wählerverzeichnis; Unterrichtung der Vorstände","§ 14 KWG/KWO",1],
+  [-1,"Letzter Tag: Einrichtung der Wahl- und Auszählungsräume","KWO",0],
+  [0,"WAHLTAG: 8–18 Uhr Wahlzeit; 15 Uhr Sonderfrist Briefwahl (Erkrankung); 18 Uhr Eingang Wahlbriefe; danach Auszählung + Schnellmeldung","§§ 28, 31 KWG",1],
+  [21,"Spätester Tag einer Stichwahl (Direktwahlen) – binnen 21 Tagen","§ 60 Abs. 3 KWG",1]],
+ btw:[[-47,"18 Uhr: Ende Beteiligungsanzeige Parteien (Bundeswahlleiterin)","§ 18 BWG",0],
+  [-42,"Stichtag Eintragung Wahlberechtigte ins Wählerverzeichnis","§ 16 BWO",1],
+  [-34,"18 Uhr: Ende Einreichung Kreiswahlvorschläge/Landeslisten (Kwl/Lwl)","§ 19 BWG",0],
+  [-30,"Zulassungsentscheidung der Wahlausschüsse (Kwl/Lwl)","§§ 26, 28 BWG",0],
+  [-26,"Frühester Beginn der Wahlschein-Erteilung","§ 28 BWO",0],
+  [-24,"Letzte Bekanntmachung: Einsichtnahme Wählerverzeichnis + Einspruchsfrist","§ 20 BWO",0],
+  [-21,"Letzte Wahlbenachrichtigung; Ende Antragsfrist besondere Personenkreise (Auslandsdeutsche u. a.)","§§ 16, 18, 19 BWO",1],
+  [-20,"Beginn Einsichtnahme + Einspruchsfrist Wählerverzeichnis (werktags)","§ 22 BWO",0],
+  [-16,"Ende Einsichtnahme + Einspruchsfrist","§ 22 BWO",1],
+  [-13,"Letzte Benachrichtigung Einrichtungen/Sonderwahlbezirke","§§ 29, 66 BWO",0],
+  [-10,"Letzte Zustellung der Einspruchsentscheidungen","§ 22 BWO",0],
+  [-6,"Letzte Wahlbekanntmachung; ab jetzt: Verpflichtung/Schulung der Wahlvorstände, Einrichtung der Wahlräume","§ 48 BWO",1],
+  [-2,"15 Uhr: Ende der regulären Wahlscheinantragsfrist (Freitag vor der Wahl)","§ 27 Abs. 4 BWO",1],
+  [-1,"Letzter Abschluss Wählerverzeichnis; Verzeichnis ungültiger Wahlscheine","§ 24 BWO",0],
+  [0,"WAHLTAG: 8–18 Uhr; 15 Uhr Sonderfrist Wahlscheine (Erkrankung); ab 18 Uhr Auszählung + Schnellmeldung an Kreiswahlleiter","§§ 47 ff. BWO",1],
+  [1,"Schnellstmögliche Weiterleitung der Wahlniederschriften an den Kreiswahlleiter","§ 72 BWO",0]]};
+function calcFristen(art,iso){const list=FRISTEN[art]||[];
+  return list.map(f=>({tx:f[0],label:f[1],rg:f[2],key:f[3]===1,date:addDays(iso,f[0])}));}
+function runTests(){const out=[];
+  const p=calcPBE([{name:"A",menge:1000,mbz:30}],12,1600);
+  out.push(["PBE 1000×30min +12% / 1600h", Math.abs(p.vza-0.35)<0.001]);
+  const kw=calcKW({inv:10000,kost:2000,erl:0,rest:1000,jahre:5,zins:3});
+  out.push(["KW berechnet (negativ, plausibel)", kw<0 && kw>-25000]);
+  const q=calcQuorumBB(15000); out.push(["Quorum BB 15000→1500", q.mass===1500]);
+  const q2=calcQuorumBB(40000); out.push(["Quorum BB Kappung 3000", q2.mass===3000]);
+  out.push(["Quorum BE 15% von 13000→1950", calcQuorumBE(13000)===1950]);
+  const h=calcHelfer(12,7,6,6,15); out.push(["Helfer 12×7+6×6+15%", h.gesamt===138]);
+  const fr=calcFristen("kw","2029-06-10");
+  out.push(["Fristen KW: T-48 = 23.04.2029", fmtDate(fr.find(x=>x.tx===-48).date).indexOf("23.04.2029")>-1]);
+  out.push(["Fristen BTW vorhanden", calcFristen("btw","2029-03-11").length>10]);
+  return out;}
+
+/* ---------- State & Persistenz ---------- */
+let S={view:"home",bId:null,avId:null,step:0,answers:{},snap:{},search:""};
+function saveS(){try{localStorage.setItem("avapp3",JSON.stringify({answers:S.answers}));}catch(e){}}
+function loadS(){try{const x=JSON.parse(localStorage.getItem("avapp3")||"{}");
+  if(x.answers)S.answers=x.answers;}catch(e){}}
+function ans(){if(!S.answers[S.avId])S.answers[S.avId]={};return S.answers[S.avId];}
+function ansOf(av){return S.answers[av]||{};}
+
+/* ---------- Utils ---------- */
+function $(id){return document.getElementById(id);}
+function h(tag,attrs,kids){const e=document.createElement(tag);
+  if(attrs)for(const k in attrs){if(k==="class")e.className=attrs[k];
+    else if(k==="html")e.innerHTML=attrs[k];
+    else if(k.startsWith("on"))e.addEventListener(k.slice(2),attrs[k]);
+    else e.setAttribute(k,attrs[k]);}
+  (kids||[]).forEach(c=>{if(c==null)return;
+    e.appendChild(typeof c==="string"?document.createTextNode(c):c);});return e;}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove("show"),2200);}
+function esc(s){return String(s??"");}
+function itemKey(si,ii,it){return it.id||("s"+si+"i"+ii);}
+function visible(it){if(!it.showIf)return true;const v=ans()[it.showIf.id];
+  if(Array.isArray(v))return v.indexOf(it.showIf.eq)>-1;return v===it.showIf.eq;}
+function stepDoneCount(av){let n=0;const a=S.answers[av.id]||{};
+  av.steps.forEach((st,si)=>{const done=st.items.some((it,ii)=>{const k=itemKey(si,ii,it);
+    return a[k]!==undefined&&a[k]!==""&&a[k]!==null;});if(done)n++;});return n;}
+
+/* ---------- Header / Footer ---------- */
+function renderHeader(title,sub,prog,showCancel){const hd=$("hdr");hd.innerHTML="";
+  const row=h("div",{class:"hrow"});
+  if(S.view!=="home")row.appendChild(h("button",{class:"hbtn",onclick:goHome,title:"Home"},["⌂"]));
+  row.appendChild(h("div",{class:"htitle"},[title]));
+  if(showCancel)row.appendChild(h("button",{class:"hbtn",onclick:cancelAV},["✕"]));
+  else if(S.view!=="home")row.appendChild(h("div",{style:"min-width:44px"}));
+  hd.appendChild(row);
+  if(sub)hd.appendChild(h("div",{class:"hsub"},[sub]));
+  if(prog!==null&&prog!==undefined){const pb=h("div",{class:"pbar"});
+    pb.appendChild(h("div",{class:"pfill",style:"width:"+Math.round(prog*100)+"%"}));hd.appendChild(pb);}}
+function renderFooter(cfg){const f=$("ftr");f.innerHTML="";if(!cfg){f.style.display="none";return;}
+  f.style.display="block";const row=h("div",{class:"frow"});
+  row.appendChild(h("button",{class:"fbtn fhome",onclick:goHome,title:"Home"},["⌂"]));
+  if(cfg.back)row.appendChild(h("button",{class:"fbtn fback",onclick:cfg.back},["← Zurück"]));
+  if(cfg.next)row.appendChild(h("button",{class:"fbtn fnext",onclick:cfg.next},[cfg.nextLabel||"Weiter →"]));
+  f.appendChild(row);}
+
+/* ---------- Navigation ---------- */
+function goHome(){if(S.view==="step"&&!confirm("Zur Startseite? Deine Eingaben bleiben gespeichert."))return;
+  S.view="home";S.bId=null;S.avId=null;render();}
+function openBereich(id){S.view="bereich";S.bId=id;render();}
+function openAV(id){S.avId=id;S.bId=AVS[id].b;S.view="intro";S.step=0;render();}
+function cancelAV(){if(confirm("Arbeitsvorgang abbrechen? Eingaben bleiben gespeichert, du kannst später fortsetzen."))
+  {S.view="bereich";render();}}
+function startAV(){S.view="step";S.step=0;snapStep();render();}
+function nextStep(){const av=AVS[S.avId];
+  if(S.step<av.steps.length-1){S.step++;snapStep();render();window.scrollTo(0,0);}
+  else{S.view="done";render();window.scrollTo(0,0);}}
+function prevStep(){if(S.step>0){S.step--;render();window.scrollTo(0,0);}
+  else{S.view="intro";render();window.scrollTo(0,0);}}
+function snapStep(){const av=AVS[S.avId];const st=av.steps[S.step];const snap={};
+  st.items.forEach((it,ii)=>{const k=itemKey(S.step,ii,it);
+    if(ans()[k]!==undefined)snap[k]=JSON.parse(JSON.stringify(ans()[k]));});
+  if(!S.snap[S.avId])S.snap[S.avId]={};S.snap[S.avId][S.step]=snap;}
+function undoStep(){const av=AVS[S.avId];const st=av.steps[S.step];
+  const snap=(S.snap[S.avId]||{})[S.step]||{};
+  st.items.forEach((it,ii)=>{const k=itemKey(S.step,ii,it);
+    if(snap[k]!==undefined)ans()[k]=JSON.parse(JSON.stringify(snap[k]));else delete ans()[k];});
+  saveS();render();toast("↺ Schritt zurückgesetzt");}
+
+/* ---------- Views ---------- */
+function render(){const m=$("main");m.innerHTML="";
+  if(S.view==="home")vHome(m);
+  else if(S.view==="bereich")vBereich(m);
+  else if(S.view==="grund")vGrund(m);
+  else if(S.view==="intro")vIntro(m);
+  else if(S.view==="step")vStep(m);
+  else if(S.view==="done")vDone(m);}
+
+function vHome(m){renderHeader("Arbeitsvorgänge","SB Organisation (1.1.2) · Stadt Lahnstein",null,false);
+  renderFooter(null);
+  m.appendChild(h("input",{class:"search",type:"search",placeholder:"🔍 Arbeitsvorgang suchen …",
+    value:S.search,oninput:e=>{S.search=e.target.value;render();
+      const el=document.querySelector(".search");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}}));
+  const q=S.search.trim().toLowerCase();
+  if(q){const hits=Object.values(AVS).filter(a=>(a.nr+" "+a.titel+" "+a.ziel).toLowerCase().includes(q));
+    m.appendChild(h("div",{class:"sec"},[hits.length+" Treffer"]));
+    hits.forEach(a=>m.appendChild(avTile(a)));
+    if(!hits.length)m.appendChild(h("div",{class:"card small"},["Kein Arbeitsvorgang gefunden."]));return;}
+  m.appendChild(h("div",{class:"sec"},["Aufgabengebiete (je 20 %)"]));
+  BEREICHE.forEach(b=>{const n=b.aufgaben.reduce((s,g)=>s+g.avs.length,0);
+    m.appendChild(h("button",{class:"tile",onclick:()=>openBereich(b.id)},[
+      h("div",{class:"ic"},[b.icon]),
+      h("div",{class:"tt"},[h("b",null,["Bereich "+b.nr+" – "+b.titel]),
+        h("small",null,[b.kurz+" · "+n+" Arbeitsvorgänge"])]),
+      h("div",{class:"arr"},["›"])]));});
+  m.appendChild(h("div",{class:"card small"},[
+    "Datenbasis: Handbuch Arbeitsvorgänge (Bereiche 1–4) + Handbuch Arbeitsvorgänge Wahlen · Stand 03.07.2026. ",
+    "Rechtsstände vor Anwendung prüfen. Eingaben werden nur lokal auf diesem Gerät gespeichert."]));}
+
+function avTile(a){const done=stepDoneCount(a),tot=a.steps.length;
+  return h("button",{class:"tile",onclick:()=>openAV(a.id)},[
+    h("div",{class:"tt"},[
+      h("b",null,[h("span",{class:"badge"+(done>=tot?" done":"")},[a.nr]),a.titel]),
+      h("small",null,[a.ziel.length>110?a.ziel.slice(0,110)+"…":a.ziel,
+        done>0?" · "+done+"/"+tot+" Schritte begonnen":""])]),
+    h("div",{class:"arr"},["›"])]);}
+
+function vBereich(m){const b=BEREICHE.find(x=>x.id===S.bId);
+  renderHeader("Bereich "+b.nr+" – "+b.titel,null,null,false);
+  renderFooter({back:goHome});
+  m.appendChild(h("button",{class:"tile",onclick:()=>{S.view="grund";render();}},[
+    h("div",{class:"ic"},["📜"]),
+    h("div",{class:"tt"},[h("b",null,["Grundsätze & Maßstäbe"]),
+      h("small",null,["Querschnittsregeln, die für alle Arbeitsvorgänge dieses Bereichs gelten"])]),
+    h("div",{class:"arr"},["›"])]));
+  b.aufgaben.forEach(g=>{m.appendChild(h("div",{class:"sec"},[g.t]));
+    g.avs.forEach(id=>{if(AVS[id])m.appendChild(avTile(AVS[id]));});});}
+
+function vGrund(m){const b=BEREICHE.find(x=>x.id===S.bId);
+  renderHeader("Grundsätze – Bereich "+b.nr,null,null,false);
+  renderFooter({back:()=>{S.view="bereich";render();}});
+  const c=h("div",{class:"card"});c.appendChild(h("h2",null,["📜 Grundsätze & Prüfmaßstäbe"]));
+  b.grund.forEach(g=>c.appendChild(h("div",{class:"info"},[g])));
+  m.appendChild(c);}
+
+function vIntro(m){const av=AVS[S.avId];
+  renderHeader(av.nr+" – "+av.titel,null,0,true);
+  renderFooter({back:()=>{S.view="bereich";render();},next:startAV,nextLabel:"Prüfschema starten →"});
+  const c=h("div",{class:"card"});
+  c.appendChild(h("h2",null,[av.nr+" – "+av.titel]));
+  c.appendChild(h("div",{class:"info"},[h("b",null,["Worum geht es? "]),av.ziel]));
+  c.appendChild(h("h3",null,["Was ist der Auslöser? (antippen)"]));
+  c.appendChild(h("div",{class:"hint"},["Mehrfachauswahl möglich – der Anlass wird im Abschlussprotokoll dokumentiert."]));
+  const key="_ausloeser";const cur=ans()[key]||[];
+  const box=h("div",{class:"opts"});
+  av.ausloeser.forEach(o=>{const sel=cur.indexOf(o)>-1;
+    box.appendChild(h("button",{class:"opt multi"+(sel?" sel":""),onclick:()=>{
+      const a=ans()[key]||[];const i=a.indexOf(o);if(i>-1)a.splice(i,1);else a.push(o);
+      ans()[key]=a;saveS();render();}},[h("span",{class:"dot"}),h("span",null,[o])]));});
+  c.appendChild(box);m.appendChild(c);
+  const c2=h("div",{class:"card"});
+  c2.appendChild(h("h3",null,["⚖️ Grundlagen & Quellen"]));
+  av.grundlagen.forEach(g=>c2.appendChild(h("span",{class:"chip"},[g])));
+  c2.appendChild(h("h3",{style:"margin-top:14px"},["👥 Beteiligte & Schnittstellen"]));
+  av.beteiligte.forEach(g=>c2.appendChild(h("span",{class:"chip"},[g])));
+  c2.appendChild(h("h3",{style:"margin-top:14px"},["🎯 Ergebnis am Ende"]));
+  c2.appendChild(h("div",{class:"small"},[av.ergebnis]));
+  m.appendChild(c2);
+  const dn=stepDoneCount(av);
+  if(dn>0){const c3=h("div",{class:"card"});
+    c3.appendChild(h("div",{class:"small"},["In diesem Arbeitsvorgang sind bereits Eingaben vorhanden ("+dn+"/"+av.steps.length+" Schritte)."]));
+    c3.appendChild(h("button",{class:"btn bdanger",onclick:()=>{
+      if(confirm("Alle Eingaben dieses Arbeitsvorgangs löschen?")){delete S.answers[S.avId];saveS();render();toast("Eingaben gelöscht");}}},
+      ["🗑 Eingaben dieses AV zurücksetzen"]));m.appendChild(c3);}}
+
+function vStep(m){const av=AVS[S.avId];const st=av.steps[S.step];
+  renderHeader(av.nr+" · Schritt "+(S.step+1)+" von "+av.steps.length,av.titel,(S.step+1)/(av.steps.length+1),true);
+  renderFooter({back:prevStep,next:nextStep,nextLabel:S.step<av.steps.length-1?"Weiter →":"Zum Abschluss ✓"});
+  const c=h("div",{class:"card"});
+  c.appendChild(h("h2",null,[st.t]));
+  if(st.info)c.appendChild(h("div",{class:"info"},[h("b",null,["ℹ️ "]),st.info]));
+  if(st.warn)c.appendChild(h("div",{class:"warnbox"},[h("b",null,["⚠️ "]),st.warn]));
+  st.items.forEach((it,ii)=>{if(!visible(it))return;
+    c.appendChild(renderItem(it,itemKey(S.step,ii,it)));});
+  c.appendChild(h("button",{class:"undo",onclick:undoStep},["↺ Eingaben dieses Schritts rückgängig machen"]));
+  m.appendChild(c);}
+
+function renderItem(it,k){const wrap=h("div",{class:"item"});const a=ans();
+  if(it.ty==="check"){const v=a[k]; /* undefined | true | 'na' */
+    const row=h("div",{class:"checkrow"+(v===true?" on":v==="na"?" na":""),onclick:e=>{
+      if(e.target.classList.contains("nabtn"))return;
+      a[k]=(a[k]===true)?undefined:true;if(a[k]===undefined)delete a[k];saveS();render();}},[
+      h("div",{class:"cbox"},[v===true?"✓":v==="na"?"–":""]),
+      h("div",{class:"cwrap"},[h("div",{class:"ilabel"},[it.l]),
+        it.help?h("div",{class:"ihelp"},[it.help]):null,
+        h("button",{class:"nabtn",onclick:ev=>{ev.stopPropagation();
+          a[k]=(a[k]==="na")?undefined:"na";if(a[k]===undefined)delete a[k];saveS();render();}},
+          [v==="na"?"als offen markieren":"trifft nicht zu / überspringen"])])]);
+    wrap.appendChild(row);return wrap;}
+  wrap.appendChild(h("div",{class:"ilabel"},[it.l]));
+  if(it.help)wrap.appendChild(h("div",{class:"ihelp"},[it.help]));
+  if(it.ty==="choice"){const cur=it.multi?(a[k]||[]):a[k];
+    const box=h("div",{class:"opts"});
+    it.opts.forEach(o=>{const sel=it.multi?cur.indexOf(o)>-1:cur===o;
+      box.appendChild(h("button",{class:"opt"+(it.multi?" multi":"")+(sel?" sel":""),onclick:()=>{
+        if(it.multi){const arr=a[k]||[];const i=arr.indexOf(o);
+          if(i>-1)arr.splice(i,1);else arr.push(o);a[k]=arr;}
+        else a[k]=(a[k]===o)?undefined:o;
+        if(a[k]===undefined)delete a[k];saveS();render();}},
+        [h("span",{class:"dot"}),h("span",null,[o])]));});
+    wrap.appendChild(box);}
+  else if(it.ty==="text"){wrap.appendChild(h(it.long?"textarea":"input",{type:"text",
+    value:a[k]||"",placeholder:it.ph||"",oninput:e=>{a[k]=e.target.value;saveS();}},
+    it.long?[a[k]||""]:null));}
+  else if(it.ty==="num"){wrap.appendChild(h("input",{type:"number",inputmode:"decimal",
+    value:a[k]??"",placeholder:it.ph||"",oninput:e=>{a[k]=e.target.value;saveS();
+      const cw=wrap.closest(".card");if(it.recalc&&cw)refreshCalcs(cw);}}));}
+  else if(it.ty==="date"){wrap.appendChild(h("input",{type:"date",value:a[k]||"",
+    onchange:e=>{a[k]=e.target.value;saveS();render();}}));}
+  else if(it.ty==="range"){const v=a[k]??it.def??it.min;
+    const rw=h("div",{class:"rangewrap"});
+    const badge=h("div",{class:"rval"},[fmtNum(Number(v),0)+(it.unit||"")]);
+    rw.appendChild(h("input",{type:"range",min:it.min,max:it.max,step:it.step||1,value:v,
+      oninput:e=>{a[k]=Number(e.target.value);badge.textContent=fmtNum(Number(e.target.value),0)+(it.unit||"");
+        saveS();const cw=wrap.closest(".card");if(cw)refreshCalcs(cw);}}));
+    rw.appendChild(badge);wrap.appendChild(rw);
+    if(a[k]===undefined){a[k]=Number(v);saveS();}}
+  else if(it.ty==="calc"){wrap.appendChild(renderCalc(it,k));}
+  return wrap;}
+
+/* ---------- Rechenmodule ---------- */
+function refreshCalcs(scope){(scope||document).querySelectorAll("[data-calc]").forEach(el=>{
+  const kind=el.getAttribute("data-calc");const k=el.getAttribute("data-key");
+  el.innerHTML="";el.appendChild(calcBody(kind,k));});}
+function renderCalc(it,k){const host=h("div",{"data-calc":it.kind,"data-key":k});
+  host.appendChild(calcBody(it.kind,k));return host;}
+function calcBody(kind,k){const a=ans();
+  if(kind==="pbe"){const rows=a[k+"_rows"]||(a[k+"_rows"]=[{name:"",menge:"",mbz:""}]);
+    const vz=a[k+"_vz"]??(a[k+"_vz"]=12);const jaz=a[k+"_jaz"]??(a[k+"_jaz"]=1600);
+    const box=h("div");
+    rows.forEach((r,i)=>{const rc=h("div",{class:"card",style:"padding:10px;margin:8px 0"});
+      rc.appendChild(h("input",{type:"text",placeholder:"Aufgabe/Katalogposition "+(i+1),value:r.name,
+        oninput:e=>{r.name=e.target.value;saveS();}}));
+      rc.appendChild(h("input",{type:"number",inputmode:"decimal",placeholder:"Jahresmenge (Fälle/Jahr)",
+        value:r.menge,oninput:e=>{r.menge=e.target.value;saveS();refreshCalcs();}}));
+      rc.appendChild(h("input",{type:"number",inputmode:"decimal",placeholder:"mittlere Bearbeitungszeit (Minuten/Fall)",
+        value:r.mbz,oninput:e=>{r.mbz=e.target.value;saveS();refreshCalcs();}}));
+      if(rows.length>1)rc.appendChild(h("button",{class:"delrow",onclick:()=>{rows.splice(i,1);saveS();refreshCalcs();}},["✕ Zeile entfernen"]));
+      box.appendChild(rc);});
+    box.appendChild(h("button",{class:"addrow",onclick:()=>{rows.push({name:"",menge:"",mbz:""});saveS();refreshCalcs();}},["+ Aufgabe hinzufügen"]));
+    const rw=h("div",{class:"rangewrap"});const badge=h("div",{class:"rval"},[vz+" %"]);
+    rw.appendChild(h("div",{class:"ihelp",style:"flex:0 0 92px"},["Verteilzeit-zuschlag"]));
+    rw.appendChild(h("input",{type:"range",min:0,max:20,step:1,value:vz,oninput:e=>{
+      a[k+"_vz"]=Number(e.target.value);badge.textContent=e.target.value+" %";saveS();refreshCalcs();}}));
+    rw.appendChild(badge);box.appendChild(rw);
+    box.appendChild(h("div",{class:"ihelp"},["Leitsätze RH: pauschal 10–15 %; nur 10 % Obergrenze, wenn Verteilzeiten individuell miterhoben; Abweichungen begründen. Leerzeiten sind KEIN Verteilzeitgrund."]));
+    box.appendChild(h("div",{class:"ihelp",style:"margin-top:8px"},["Jahresarbeitszeit (JAZ) einer Normalarbeitskraft in Stunden/Jahr – verwaltungsspezifisch herleiten (SRH-Anhalt: ~123 Std./Monat ≈ 1.476 Std./Jahr netto):"]));
+    box.appendChild(h("input",{type:"number",inputmode:"decimal",value:jaz,
+      oninput:e=>{a[k+"_jaz"]=e.target.value;saveS();refreshCalcs();}}));
+    const res=calcPBE(rows,vz,Number(jaz)||0);
+    const out=h("div",{class:"calcout"});
+    out.appendChild(h("div",null,["Jahresarbeitszeitbedarf: ",h("b",null,[fmtNum(res.sumStd,0)+" Std./Jahr"])]));
+    out.appendChild(h("div",null,["Personalbedarf: ",h("b",null,[fmtNum(res.vza,2)+" VZÄ"])]));
+    box.appendChild(out);
+    a[k]="VZÄ="+fmtNum(res.vza,2)+" (Bedarf "+fmtNum(res.sumStd,0)+" Std./J.; VZ "+vz+" %; JAZ "+jaz+" Std.)";saveS();
+    return box;}
+  if(kind==="kw"){const g=a[k+"_g"]||(a[k+"_g"]={jahre:10,zins:2.5,
+      A:{name:"Alternative A (z. B. Eigenerledigung)",inv:"",kost:"",erl:"",rest:""},
+      B:{name:"Alternative B (z. B. Fremdvergabe)",inv:"",kost:"",erl:"",rest:""}});
+    const box=h("div");
+    [["jahre","Betrachtungszeitraum",1,30,1," J."],["zins","Kalkulationszins",0,8,0.1," %"]].forEach(cfg=>{
+      const rw=h("div",{class:"rangewrap"});const badge=h("div",{class:"rval"},[fmtNum(g[cfg[0]],1)+cfg[5]]);
+      rw.appendChild(h("div",{class:"ihelp",style:"flex:0 0 92px"},[cfg[1]]));
+      rw.appendChild(h("input",{type:"range",min:cfg[2],max:cfg[3],step:cfg[4],value:g[cfg[0]],
+        oninput:e=>{g[cfg[0]]=Number(e.target.value);badge.textContent=fmtNum(g[cfg[0]],1)+cfg[5];saveS();refreshCalcs();}}));
+      rw.appendChild(badge);box.appendChild(rw);});
+    box.appendChild(h("div",{class:"ihelp"},["Zins: aktueller Kalkulationszinssatz lt. BMF-Rundschreiben, mit der Kämmerei abstimmen. Zeitraum/Zins für ALLE Alternativen identisch. Regler bewegen = Sensitivitätsanalyse (kippt die Rangfolge?)."]));
+    ["A","B"].forEach(x=>{const al=g[x];const rc=h("div",{class:"card",style:"padding:10px;margin:8px 0"});
+      rc.appendChild(h("input",{type:"text",value:al.name,oninput:e=>{al.name=e.target.value;saveS();}}));
+      [["inv","Investition zu Beginn (€)"],["kost","laufende Kosten pro Jahr (€)"],["erl","Erlöse/Einnahmen pro Jahr (€, sonst 0)"],["rest","Restwert am Ende (€, sonst 0)"]].forEach(f=>{
+        rc.appendChild(h("input",{type:"number",inputmode:"decimal",placeholder:f[1],value:al[f[0]],
+          oninput:e=>{al[f[0]]=e.target.value;saveS();refreshCalcs();}}));});
+      box.appendChild(rc);});
+    const kwA=calcKW({inv:g.A.inv,kost:g.A.kost,erl:g.A.erl,rest:g.A.rest,jahre:g.jahre,zins:g.zins});
+    const kwB=calcKW({inv:g.B.inv,kost:g.B.kost,erl:g.B.erl,rest:g.B.rest,jahre:g.jahre,zins:g.zins});
+    const out=h("div",{class:"calcout"});
+    out.appendChild(h("div",null,["Kapitalwert A: ",h("b",null,[fmtNum(kwA,0)+" €"])]));
+    out.appendChild(h("div",null,["Kapitalwert B: ",h("b",null,[fmtNum(kwB,0)+" €"])]));
+    out.appendChild(h("div",{style:"margin-top:6px"},[
+      "→ Monetär vorteilhaft: ",h("b",null,[kwA===kwB?"gleichwertig":(kwA>kwB?g.A.name:g.B.name)]),
+      " (Differenz "+fmtNum(Math.abs(kwA-kwB),0)+" €)"]));
+    box.appendChild(out);
+    a[k]="KW A="+fmtNum(kwA,0)+" € | KW B="+fmtNum(kwB,0)+" € | n="+g.jahre+" J., i="+g.zins+" % → vorteilhaft: "+(kwA>=kwB?g.A.name:g.B.name);saveS();
+    return box;}
+  if(kind==="fristen"){const art=a[k+"_art"]||"kw";const d=a[k+"_d"]||"";
+    const box=h("div");
+    const box1=h("div",{class:"opts"});
+    [["kw","Kommunalwahl / Direktwahl / Bürgerentscheid (KWG/KWO)"],["btw","Bundestagswahl (BWahlG/BWO) – EP/LTW analog"]].forEach(o=>{
+      box1.appendChild(h("button",{class:"opt"+(art===o[0]?" sel":""),onclick:()=>{a[k+"_art"]=o[0];saveS();refreshCalcs();}},
+        [h("span",{class:"dot"}),h("span",null,[o[1]])]));});
+    box.appendChild(box1);
+    box.appendChild(h("div",{class:"ihelp",style:"margin-top:8px"},["Wahltag (Sonntag) eingeben:"]));
+    box.appendChild(h("input",{type:"date",value:d,onchange:e=>{a[k+"_d"]=e.target.value;saveS();refreshCalcs();}}));
+    if(d){const rows=calcFristen(art,d);
+      const tb=h("table",{class:"ftable"});
+      tb.appendChild(h("tr",null,[h("th",null,["T±x"]),h("th",null,["Datum"]),h("th",null,["Frist / Aufgabe"])]));
+      rows.forEach(r=>{tb.appendChild(h("tr",{class:r.key?"key":""},[
+        h("td",{class:"dt"},[(r.tx>0?"+":"")+r.tx]),
+        h("td",{class:"dt"},[fmtDate(r.date)]),
+        h("td",null,[r.label+" ",h("span",{class:"small"},["("+r.rg+")"])])]));});
+      box.appendChild(tb);
+      box.appendChild(h("div",{class:"warnbox",style:"margin-top:10px"},
+        ["⚠️ § 75 KWG: Fristen verlängern sich NICHT durch Samstag/Sonntag/Feiertag. Beispieldaten der Kalender-Notiz stammen aus KW 2024/BTW 2025 – vor jeder Wahl den aktuellen Terminkalender des Landeswahlleiters (wahlen.rlp.de) gegenprüfen."]));
+      a[k]="Fristenplan "+(art==="kw"?"Kommunalwahl":"Bundestagswahl")+" für Wahltag "+fmtDate(addDays(d,0))+" berechnet ("+rows.length+" Termine)";
+      a[k+"_proto"]=rows.map(r=>("T"+(r.tx>0?"+":"")+r.tx+" · "+fmtDate(r.date)+" · "+r.label)).join("\n");saveS();}
+    return box;}
+  if(kind==="quorum"){const wb=a[k+"_wb"]||"";const sb=a[k+"_sb"]||"";
+    const box=h("div");
+    box.appendChild(h("div",{class:"ihelp"},["Zahl der wahlberechtigten Einwohner, wie bei der LETZTEN Stadtratswahl festgestellt:"]));
+    box.appendChild(h("input",{type:"number",inputmode:"numeric",placeholder:"z. B. 14500",value:wb,
+      oninput:e=>{a[k+"_wb"]=e.target.value;saveS();refreshCalcs();}}));
+    box.appendChild(h("div",{class:"ihelp",style:"margin-top:8px"},["Aktuelle Zahl der Stimmberechtigten (für das Zustimmungsquorum beim Bürgerentscheid):"]));
+    box.appendChild(h("input",{type:"number",inputmode:"numeric",placeholder:"z. B. 14500",value:sb,
+      oninput:e=>{a[k+"_sb"]=e.target.value;saveS();refreshCalcs();}}));
+    const out=h("div",{class:"calcout"});
+    if(wb){const q=calcQuorumBB(wb);
+      out.appendChild(h("div",null,["Unterschriftenquorum Bürgerbegehren (10 %, Kappung 3.000): ",
+        h("b",null,[fmtNum(q.mass,0)+" gültige Unterschriften"]),q.cap?" (Kappungsgrenze greift)":""]));}
+    if(sb){out.appendChild(h("div",null,["Zustimmungsquorum Bürgerentscheid (15 % der Stimmberechtigten): ",
+      h("b",null,[fmtNum(calcQuorumBE(sb),0)+" Ja-Stimmen"])," mindestens – zusätzlich Mehrheit der gültigen Stimmen nötig"]));}
+    if(wb||sb)box.appendChild(out);
+    box.appendChild(h("div",{class:"ihelp",style:"margin-top:6px"},["§ 17a Abs. 3 u. 7 GemO (Stand 2015-Reform: Kostendeckungsvorschlag abgeschafft, Zustimmungsquorum 15 %). Empfehlung an Initiatoren: ~20 % Puffer wegen ungültiger Unterschriften."]));
+    if(wb||sb){a[k]=(wb?("BB-Quorum: "+fmtNum(calcQuorumBB(wb).mass,0)+" Unterschriften (Basis "+wb+"). "):"")+
+      (sb?("BE-Zustimmungsquorum: "+fmtNum(calcQuorumBE(sb),0)+" Ja-Stimmen (Basis "+sb+")."):"");saveS();}
+    return box;}
+  if(kind==="helfer"){const g=a[k+"_g"]||(a[k+"_g"]={u:"",ug:7,b:"",bg:6,res:15});
+    const box=h("div");
+    box.appendChild(h("div",{class:"ihelp"},["Zahl der Urnen-Stimmbezirke:"]));
+    box.appendChild(h("input",{type:"number",inputmode:"numeric",value:g.u,placeholder:"z. B. 12",
+      oninput:e=>{g.u=e.target.value;saveS();refreshCalcs();}}));
+    [["ug","Personen je Urnenwahlvorstand",5,9],["bg","Personen je Briefwahl-/Auszählungsvorstand",5,9],["res","Reserve",5,30]].forEach(cfg=>{
+      const rw=h("div",{class:"rangewrap"});const badge=h("div",{class:"rval"},[g[cfg[0]]+(cfg[0]==="res"?" %":"")]);
+      rw.appendChild(h("div",{class:"ihelp",style:"flex:0 0 92px"},[cfg[1]]));
+      rw.appendChild(h("input",{type:"range",min:cfg[2],max:cfg[3],step:1,value:g[cfg[0]],
+        oninput:e=>{g[cfg[0]]=Number(e.target.value);badge.textContent=e.target.value+(cfg[0]==="res"?" %":"");saveS();refreshCalcs();}}));
+      rw.appendChild(badge);box.appendChild(rw);});
+    box.appendChild(h("div",{class:"ihelp"},["Zahl der Briefwahl-/Auszählungsvorstände (nach Briefwahlmenge; kommunal ab ~50 Briefwählern möglich):"]));
+    box.appendChild(h("input",{type:"number",inputmode:"numeric",value:g.b,placeholder:"z. B. 6",
+      oninput:e=>{g.b=e.target.value;saveS();refreshCalcs();}}));
+    const r=calcHelfer(g.u,g.ug,g.b,g.bg,g.res);
+    const out=h("div",{class:"calcout"});
+    out.appendChild(h("div",null,["Basisbedarf: ",h("b",null,[fmtNum(r.basis,0)+" Personen"])]));
+    out.appendChild(h("div",null,["+ Reserve ("+g.res+" %): ",h("b",null,[fmtNum(r.reserve,0)])]));
+    out.appendChild(h("div",null,["Gesamtbedarf: ",h("b",null,[fmtNum(r.gesamt,0)+" Wahlhelfer/innen"])]));
+    box.appendChild(out);
+    box.appendChild(h("div",{class:"ihelp"},["Beschlussfähigkeit im Blick: Kommunalwahl mind. 3 Anwesende während der Wahlhandlung, 5 bei der Auszählung (§ 27 KWG). KGSt-Faustregel: eher zu viel Reserve als zu wenig – Ausfälle am Wahlmorgen sind der Normalfall."]));
+    a[k]="Wahlhelferbedarf: "+r.gesamt+" ("+g.u+"×"+g.ug+" Urne + "+(g.b||0)+"×"+g.bg+" Brief + "+g.res+" % Reserve)";saveS();
+    return box;}
+  if(kind==="wertzahl"){const rows=a[k+"_m"]||(a[k+"_m"]=[
+      {m:"Schwierigkeit der Informationsverarbeitung",s:"",p:""},
+      {m:"Dienstliche Beziehungen",s:"",p:""},{m:"Selbständigkeit",s:"",p:""},
+      {m:"Verantwortung",s:"",p:""},{m:"Vor- und Ausbildung",s:"",p:""},{m:"Erfahrung",s:"",p:""}]);
+    const box=h("div");
+    box.appendChild(h("div",{class:"ihelp"},["KGSt-Wertzahlverfahren: je Merkmal Stufe wählen und die zugehörige Punktzahl aus der KGSt-Dienstpostenbewertungstabelle eintragen (lizenzierte Tabelle – Punkte manuell übernehmen). Referenz eigene Stelle (ID 796): Stufen 5/4/4/5/3/1 → 452 Punkte → A 11."]));
+    rows.forEach(r=>{const rc=h("div",{class:"card",style:"padding:10px;margin:8px 0"});
+      rc.appendChild(h("div",{class:"ilabel",style:"font-size:14px"},[r.m]));
+      const sel=h("select",{onchange:e=>{r.s=e.target.value;saveS();refreshCalcs();}});
+      sel.appendChild(h("option",{value:""},["Stufe wählen …"]));
+      for(let s=1;s<=8;s++){const o=h("option",{value:String(s)},["Stufe "+s]);
+        if(String(s)===r.s)o.setAttribute("selected","");sel.appendChild(o);}
+      rc.appendChild(sel);
+      rc.appendChild(h("input",{type:"number",inputmode:"numeric",placeholder:"Punkte lt. KGSt-Tabelle",
+        value:r.p,oninput:e=>{r.p=e.target.value;saveS();refreshCalcs();}}));
+      box.appendChild(rc);});
+    const sum=rows.reduce((s,r)=>s+(Number(r.p)||0),0);
+    const out=h("div",{class:"calcout"});
+    out.appendChild(h("div",null,["Summe Wertzahl: ",h("b",null,[fmtNum(sum,0)+" Punkte"])]));
+    out.appendChild(h("div",{class:"small"},["→ Besoldungsgruppe über die KGSt-Dienstpostentabelle ablesen und mit passendem Musterbogen GK 6 (Vault: Übersicht KGSt-Musterbewertungen) plausibilisieren."]));
+    box.appendChild(out);
+    a[k]="KGSt-Wertzahl: "+sum+" P. (Stufen: "+rows.map(r=>r.s||"–").join("/")+")";saveS();
+    return box;}
+  return h("div",{class:"small"},["(Modul nicht gefunden)"]);}
+
+/* ---------- Abschluss ---------- */
+function vDone(m){const av=AVS[S.avId];
+  renderHeader(av.nr+" · Abschluss",av.titel,1,true);
+  renderFooter({back:()=>{S.view="step";S.step=av.steps.length-1;render();}});
+  const c=h("div",{class:"card"});
+  c.appendChild(h("div",{class:"done-icon"},["🏁"]));
+  c.appendChild(h("h2",{class:"center"},["Abschluss & Qualitätskontrolle"]));
+  c.appendChild(h("div",{class:"info"},[h("b",null,["🎯 Ergebnis dieses Arbeitsvorgangs: "]),av.ergebnis]));
+  c.appendChild(h("h3",null,["Qualitätsmaßstäbe – vor dem Absenden prüfen:"]));
+  av.qualitaet.forEach((q,i)=>{const k="_q"+i;const v=ans()[k]===true;
+    c.appendChild(h("div",{class:"qmrow checkrow"+(v?" on":""),onclick:()=>{
+      ans()[k]=!v||undefined;if(!ans()[k])delete ans()[k];saveS();render();}},[
+      h("div",{class:"cbox"},[v?"✓":""]),h("div",null,[q])]));});
+  m.appendChild(c);
+  const proto=buildProtocol(av);
+  const c2=h("div",{class:"card"});
+  c2.appendChild(h("h3",null,["📋 Ergebnis & Weg (Protokoll)"]));
+  c2.appendChild(h("div",{class:"hint"},["Kann direkt in E-Mail, Vermerk oder Akte eingefügt werden."]));
+  const ta=h("textarea",{style:"min-height:200px;font-size:13px",readonly:""},[proto]);
+  c2.appendChild(ta);
+  c2.appendChild(h("button",{class:"btn bok",onclick:()=>{copyText(proto,ta);}},["📋 Ergebnis & Weg kopieren"]));
+  c2.appendChild(h("button",{class:"btn bsec",onclick:()=>{S.view="bereich";render();toast("Eingaben bleiben gespeichert");}},["Zurück zur Übersicht"]));
+  c2.appendChild(h("button",{class:"btn bdanger",onclick:()=>{
+    if(confirm("Eingaben dieses Arbeitsvorgangs löschen und neu starten?")){delete S.answers[S.avId];saveS();S.view="intro";render();}}},
+    ["🗑 Zurücksetzen & neu starten"]));
+  m.appendChild(c2);}
+function copyText(txt,ta){const ok=()=>toast("✓ In die Zwischenablage kopiert");
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok).catch(()=>{fallbackCopy(ta);ok();});}
+  else{fallbackCopy(ta);ok();}}
+function fallbackCopy(ta){ta.focus();ta.select();ta.setSelectionRange(0,999999);
+  try{document.execCommand("copy");}catch(e){}}
+function buildProtocol(av){const a=ansOf(av.id);const b=BEREICHE.find(x=>x.id===av.b);
+  const L=[];const now=new Date();
+  L.push("PROTOKOLL – "+av.nr+" "+av.titel);
+  L.push("Aufgabengebiet: Bereich "+b.nr+" – "+b.titel);
+  L.push("Erstellt: "+fmtDate(now)+", "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0")+" Uhr · Arbeitsvorgänge-App (Datenstand 03.07.2026)");
+  L.push("=".repeat(46));
+  const ausl=a["_ausloeser"]||[];
+  L.push("AUSLÖSER: "+(ausl.length?ausl.join("; "):"(nicht angegeben)"));
+  av.steps.forEach((st,si)=>{L.push("");L.push("SCHRITT "+(si+1)+": "+st.t);
+    st.items.forEach((it,ii)=>{const k=itemKey(si,ii,it);
+      if(it.showIf){const dep=a[it.showIf.id];
+        const vis=Array.isArray(dep)?dep.indexOf(it.showIf.eq)>-1:dep===it.showIf.eq;
+        if(!vis)return;}
+      const v=a[k];
+      if(it.ty==="check"){L.push("  ["+(v===true?"✓":v==="na"?"n. z.":"offen")+"] "+it.l);}
+      else if(it.ty==="choice"){if(v!==undefined&&v!==null&&String(v).length)
+        L.push("  • "+it.l+" → "+(Array.isArray(v)?v.join(", "):v));
+        else L.push("  • "+it.l+" → (offen)");}
+      else if(it.ty==="calc"){L.push("  ▸ "+it.l+": "+(v||"(nicht berechnet)"));
+        if(a[k+"_proto"])a[k+"_proto"].split("\n").forEach(x=>L.push("      "+x));}
+      else{if(v!==undefined&&v!==""&&v!==null)L.push("  • "+it.l+": "+v);
+        else L.push("  • "+it.l+": (offen)");}});});
+  L.push("");L.push("QUALITÄTSMASSSTÄBE:");
+  av.qualitaet.forEach((q,i)=>L.push("  ["+(a["_q"+i]===true?"✓":"offen")+"] "+q));
+  L.push("");L.push("ERGEBNIS (Soll): "+av.ergebnis);
+  L.push("");L.push("Beteiligte/Schnittstellen: "+av.beteiligte.join("; "));
+  L.push("Grundlagen: "+av.grundlagen.join("; "));
+  return L.join("\n");}
+
+/* ---------- Init ---------- */
+if(typeof document!=="undefined"&&document.getElementById("main")){
+  loadS();render();}
+
+/* Service Worker nur bei http(s)-Auslieferung (GitHub Pages / lokaler Server);
+   bei direktem Öffnen der Datei (file://) läuft die App ohne SW weiter. */
+if("serviceWorker" in navigator&&(location.protocol==="https:"||
+  location.hostname==="localhost"||location.hostname==="127.0.0.1")){
+  addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}
+</script>
+</body>
+</html>
